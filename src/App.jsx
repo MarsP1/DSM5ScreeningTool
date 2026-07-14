@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import "./db.jsx";
+
 import ScreeningInterface from "./Pages/ScreeningInterface.jsx";
 import Screener from "./Pages/Screening.jsx";
 import PreScreener from "./Pages/PreScreening.jsx";
