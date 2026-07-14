@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSM-5 Telemedicine ARNP Note Generator with Bipolar Module</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .circle-check{appearance:none;-webkit-appearance:none;width:1rem;height:1rem;border:1.5px solid #64748b;border-radius:9999px;background:#fff;display:inline-block;position:relative;flex:0 0 auto;}
+    .circle-check:checked{border-color:#1d4ed8;background:#1d4ed8;box-shadow:inset 0 0 0 3px #fff;}
+    .circle-check:focus{outline:2px solid #93c5fd;outline-offset:2px;}
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <div class="min-h-screen">
+    <header class="bg-slate-900 text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">DSM-5 Telemedicine ARNP Note Generator</h1>
+        <p class="text-slate-300 mt-1">Focused documentation for MDD, Panic Disorder, PTSD Criteria Override, and Bipolar Disorder.</p>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <section class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5">
+        <h2 class="text-xl font-semibold">Patient / Telemedicine Encounter</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+          <label><span class="text-sm font-medium">Patient Name</span><input id="patientName" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
+          <label><span class="text-sm font-medium">DOB</span><input id="dob" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="date"></label>
+          <label><span class="text-sm font-medium">Date of Service</span><input id="dos" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="date"></label>
+          <label><span class="text-sm font-medium">Provider / ARNP</span><input id="provider" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
+          <label><span class="text-sm font-medium">Patient Location</span><input id="patientLocation" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
+          <label><span class="text-sm font-medium">Provider Location</span><input id="providerLocation" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
+          <label><span class="text-sm font-medium">Telehealth Consent</span><select id="consent" class="mt-1 w-full rounded-lg border border-slate-300 p-2"><option>Yes</option><option>No</option><option>Verbal consent documented</option></select></label>
+          <label><span class="text-sm font-medium">Emergency Contact</span><input id="emergency" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5">
+        <div class="flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h2 class="text-xl font-semibold">Controls</h2>
+            <p class="text-sm text-slate-500">All four modules are active targets and remain editable. Generate after completing relevant criteria.</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="bypassBtn" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">Simulate Complete / Bypass Non-Target Modules</button>
+            <button id="generateBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Generate ARNP Telemedicine Note</button>
+            <button id="clearBtn" class="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Clear All</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="moduleContainer" class="space-y-4"></section>
+
+
+
+      <section class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5">
+        <div class="flex justify-between flex-wrap gap-3 items-center">
+          <div>
+            <h2 class="text-xl font-semibold">17Q Response Entry</h2>
+            <p class="text-sm text-slate-500">Optional quick-entry controls for targeted 17Q responses. Q6, Q7, Q9, and Q15 include inline Yes/No selection circles. Q9 is intentionally paired with Q15 and not linked with Q16.</p>
+          </div>
+        </div>
+        <div id="q17Entry" class="mt-4 space-y-2"></div>
+      </section>
+
+      <section class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5">
+        <div class="flex justify-between flex-wrap gap-3 items-center">
+          <div>
+            <h2 class="text-xl font-semibold">ICD-9 / ICD-10-CM / SNOMED CT / DSM-5 Diagnostic Mapping</h2>
+            <p class="text-sm text-slate-500">Use “Add Diagnosis Row,” then select a diagnosis to auto-fill the mapped codes. Rows are included in the generated ARNP note.</p>
+          </div>
+          <button id="addDxBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Add Diagnosis Row</button>
+        </div>
+        <div id="crosswalkRows" class="mt-4 space-y-3"></div>
+      </section>
+
+      <section class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5">
+        <div class="flex justify-between flex-wrap gap-3 items-center">
+          <div>
+            <h2 class="text-xl font-semibold">Generated Word-Style Clinical Report for ARNP</h2>
+            <p class="text-sm text-slate-500">The generated report below is formatted like a Word-style ARNP clinical report.</p>
+          </div>
+        </div>
+        <div id="noteOutput" contenteditable="true" class="mt-4 min-h-[640px] rounded-xl border border-slate-300 bg-white text-slate-950 p-8 leading-7 shadow-inner overflow-auto">
+          <div class="mx-auto max-w-4xl bg-white" style="font-family: Georgia, 'Times New Roman', serif;">
+            <h1 class="text-2xl font-bold text-center border-b border-slate-300 pb-3 mb-4">DSM-5 Telemedicine ARNP Clinical Report</h1>
+            <p class="text-slate-600 text-center">Click “Generate ARNP Telemedicine Note” after completing active modules.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+const modules=[
+{id:'mood',title:'Module 1: Mood / Depression — MDD Target',target:true,questions:[
+['q1','Trouble falling or staying asleep, or sleeping too much.'],['q2','Feeling tired or having little energy.'],['q3','Poor appetite or overeating.'],['q4','Little interest or pleasure in doing things.'],['q5','Feeling down, depressed, or hopeless.'],['q6','Feeling bad about self, failure, or letting family down.'],['q7','Trouble concentrating.'],['q8','Psychomotor agitation or slowing noticed by others.'],['q9','Thoughts of being better off dead or self-harm.'],['q10','Symptoms cause clinically significant distress or impairment.'],['q11','Prior episode with depressed mood/anhedonia and multiple symptoms.'],['q12','Depressive symptoms present for 2 weeks minimum.'],['q13','Not better explained by bereavement alone.'],['q14','Not attributable to substance, medication, or another medical condition.'],['q15','No manic/hypomanic episode documented.'],['q16','First known depressive episode.'],['q17','Prior depressive episodes/recurrent course.']]},
+{id:'panic',title:'Module 2: Panic / Anxiety — Panic Disorder Target',target:true,questions:[
+['q18','Anxiety/panic attack this month and has happened before.'],['q19','Attack comes suddenly/out of the blue.'],['q20','Worry about another attack or something wrong.'],['q21','Shortness of breath during attack.'],['q22','Heart racing/pounding/skipping during attack.'],['q23','Chest pain or pressure during attack.'],['q24','Sweating during attack.'],['q25','Choking sensation during attack.'],['q26','Hot flashes or chills during attack.'],['q27','Nausea/upset stomach/diarrhea feeling during attack.'],['q28','Dizziness/unsteady/faint during attack.'],['q29','Tingling or numbness during attack.'],['q30','Trembling or shaking during attack.'],['q31','Fear of dying during attack.'],['q32','Fear of losing control or going crazy.'],['q33','Recurrent unexpected panic attacks.'],['q34','Persistent concern/worry about additional attacks or consequences for 4 weeks minimum.'],['q35','Maladaptive behavior change related to attacks.'],['q36','Not attributable to substance, medication, or medical condition.'],['q37','Not better explained by another mental disorder.'],['q38','Symptoms cause clinically significant distress or impairment.'],['q39','Nervous/anxious/on edge more than half the days.'],['q40','Restlessness/difficulty sitting still.'],['q41','Gets tired easily.'],['q42','Muscle tension/aches/soreness.'],['q43','Anxiety-related sleep disturbance.'],['q44','Anxiety-related trouble concentrating.'],['q45','Anxiety-related irritability.']]},
+{id:'ptsd',title:'Module 3: PTSD Criteria — ARNP Requested Override',target:true,ptsd:true,criteria:[
+{key:'A',title:'Criterion A: Trauma Exposure',required:1,items:[['ptsd_a1','Exposure to actual/threatened death, serious injury, or sexual violence.'],['ptsd_a2','Directly experienced traumatic event.'],['ptsd_a3','Witnessed traumatic event.'],['ptsd_a4','Learned traumatic event occurred to close family/friend.'],['ptsd_a5','Repeated/extreme exposure to aversive trauma details.']]},
+{key:'B',title:'Criterion B: Intrusion Symptoms',required:1,items:[['ptsd_b1','Intrusive distressing memories.'],['ptsd_b2','Distressing dreams.'],['ptsd_b3','Flashbacks/dissociative reactions.'],['ptsd_b4','Psychological distress to reminders.'],['ptsd_b5','Physiological reactivity to reminders.']]},
+{key:'C',title:'Criterion C: Avoidance',required:1,items:[['ptsd_c1','Avoids distressing trauma-related memories/thoughts/feelings.'],['ptsd_c2','Avoids external reminders: people, places, conversations, activities, objects, situations.']]},
+{key:'D',title:'Criterion D: Negative Cognition / Mood',required:2,items:[['ptsd_d1','Inability to remember important trauma aspects.'],['ptsd_d2','Persistent negative beliefs about self/others/world.'],['ptsd_d3','Distorted cognitions causing blame.'],['ptsd_d4','Persistent negative emotional state.'],['ptsd_d5','Diminished interest/participation.'],['ptsd_d6','Detachment/estrangement.'],['ptsd_d7','Inability to experience positive emotions.']]},
+{key:'E',title:'Criterion E: Arousal / Reactivity',required:2,items:[['ptsd_e1','Irritable behavior/angry outbursts.'],['ptsd_e2','Reckless/self-destructive behavior.'],['ptsd_e3','Hypervigilance.'],['ptsd_e4','Exaggerated startle.'],['ptsd_e5','Concentration problems.'],['ptsd_e6','Sleep disturbance.']]},
+{key:'F',title:'Criterion F: Duration',required:1,items:[['ptsd_f1','Duration greater than 1 month.']]},
+{key:'G',title:'Criterion G: Functional Impairment',required:1,items:[['ptsd_g1','Clinically significant distress or impairment.']]}
+]},
+{id:'bipolar',title:'Module 4: Bipolar Disorder — Bipolar I / Bipolar II Target',target:true,bipolar:true,criteria:[
+{key:'MANIC_A',title:'Manic Episode Criterion A: Mood and Energy Duration',required:1,items:[['bp_manic_a1','Distinct period of abnormally and persistently elevated, expansive, or irritable mood with abnormally increased activity or energy.'],['bp_manic_a2','Episode lasted at least 1 week and was present most of the day, nearly every day.'],['bp_manic_a3','Episode required hospitalization, regardless of duration.']]},
+{key:'MANIC_B',title:'Manic Episode Criterion B: Manic Symptoms',required:3,items:[['bp_manic_b1','Inflated self-esteem or grandiosity.'],['bp_manic_b2','Decreased need for sleep, such as feeling rested after only a few hours.'],['bp_manic_b3','More talkative than usual or pressure to keep talking.'],['bp_manic_b4','Flight of ideas or subjective racing thoughts.'],['bp_manic_b5','Distractibility reported or observed.'],['bp_manic_b6','Increase in goal-directed activity or psychomotor agitation.'],['bp_manic_b7','Excessive involvement in activities with high potential for painful consequences.']]},
+{key:'MANIC_C',title:'Manic Episode Criterion C: Severity',required:1,items:[['bp_manic_c1','Mood disturbance caused marked impairment in social or occupational functioning.'],['bp_manic_c2','Hospitalization was necessary to prevent harm to self or others.'],['bp_manic_c3','Psychotic features were present.']]},
+{key:'MANIC_D',title:'Manic Episode Criterion D: Exclusion',required:1,items:[['bp_manic_d1','Episode is not attributable to physiological effects of a substance, medication, or another medical condition.'],['bp_manic_d2','Full manic syndrome emerged during antidepressant treatment and persisted beyond physiological treatment effects.']]},
+{key:'HYPO_A',title:'Hypomanic Episode Criterion A: Mood and Energy Duration',required:1,items:[['bp_hypo_a1','Distinct period of abnormally and persistently elevated, expansive, or irritable mood with increased activity or energy.'],['bp_hypo_a2','Episode lasted at least 4 consecutive days and was present most of the day, nearly every day.']]},
+{key:'HYPO_B',title:'Hypomanic Episode Criterion B: Hypomanic Symptoms',required:3,items:[['bp_hypo_b1','Inflated self-esteem or grandiosity.'],['bp_hypo_b2','Decreased need for sleep.'],['bp_hypo_b3','More talkative than usual or pressure to keep talking.'],['bp_hypo_b4','Flight of ideas or racing thoughts.'],['bp_hypo_b5','Distractibility.'],['bp_hypo_b6','Increase in goal-directed activity or psychomotor agitation.'],['bp_hypo_b7','Excessive involvement in activities with high potential for painful consequences.']]},
+{key:'HYPO_CDEF',title:'Hypomanic Episode Criteria C-F: Functioning, Observation, Severity, Exclusion',required:4,items:[['bp_hypo_c1','Episode represented an unequivocal change in functioning uncharacteristic of the patient when asymptomatic.'],['bp_hypo_d1','Mood and functioning change were observable by others.'],['bp_hypo_e1','Episode was not severe enough to cause marked impairment or hospitalization.'],['bp_hypo_e2','No psychotic features were present during the episode.'],['bp_hypo_f1','Episode is not attributable to physiological effects of a substance, medication, or another medical condition.']]},
+{key:'DEP_A',title:'Major Depressive Episode Criterion A: Depressive Symptoms',required:5,items:[['bp_dep_a1','Depressed mood most of the day, nearly every day.'],['bp_dep_a2','Markedly diminished interest or pleasure in all or almost all activities.'],['bp_dep_a3','Significant weight loss/gain or appetite change.'],['bp_dep_a4','Insomnia or hypersomnia nearly every day.'],['bp_dep_a5','Psychomotor agitation or retardation observable by others.'],['bp_dep_a6','Fatigue or loss of energy nearly every day.'],['bp_dep_a7','Feelings of worthlessness or excessive/inappropriate guilt.'],['bp_dep_a8','Diminished ability to think, concentrate, or make decisions.'],['bp_dep_a9','Recurrent thoughts of death, suicidal ideation, suicide attempt, or suicide plan.']]},
+{key:'DEP_BC',title:'Major Depressive Episode Criteria B-C: Impairment and Exclusion',required:2,items:[['bp_dep_b1','Depressive symptoms caused clinically significant distress or impairment.'],['bp_dep_c1','Depressive episode is not attributable to physiological effects of a substance or another medical condition.']]},
+{key:'TELE',title:'Telemedicine Safety / ARNP Management Considerations',required:0,items:[['bp_tel_1','Telemedicine identity, physical location, call-back number, privacy, and emergency contact verified.'],['bp_tel_2','Screened for suicidal ideation, homicidal ideation, psychosis, intoxication/withdrawal, agitation, impulsivity, access to lethal means, and ability to maintain safety.'],['bp_tel_3','Assessed sleep pattern, episode timeline, antidepressant exposure, stimulant/substance use, medical contributors, pregnancy status when relevant, and collateral information when available.'],['bp_tel_4','ARNP reviewed medication risks/benefits and need for labs/monitoring before or during mood stabilizer or antipsychotic treatment.'],['bp_tel_5','Management plan includes psychoeducation, sleep regularity, psychotherapy referral, substance-use counseling when applicable, safety plan, and close follow-up.'],['bp_tel_6','Emergency evaluation or higher level of care indicated if manic psychosis, dangerous impulsivity, inability to sleep with escalating symptoms, suicidal/homicidal risk, or inability to maintain safety is present.']]}
+]}];
+
+function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
+function row(id,text,target){return `<div class="rounded-xl border border-slate-200 ${target?'bg-blue-50/40':'bg-white'} p-3"><div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3"><span class="text-sm font-medium"><b class="text-slate-500 uppercase mr-2">${id.replace('q','Q')}</b>${esc(text)}</span><div class="flex gap-2"><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${id}" value="Yes"> Yes</label><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${id}" value="No"> No</label></div></div></div>`}
+function cbox(id,text){return `<label class="flex gap-3 rounded-xl border border-slate-200 bg-blue-50/40 p-3 cursor-pointer items-start"><input type="checkbox" id="${id}" class="circle-check mt-1"><span class="text-sm font-medium">${esc(text)}</span></label>`}
+function circleYesNo(name){return `<div class="flex gap-2 shrink-0"><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${name}" value="Yes"> Yes</label><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${name}" value="No"> No</label></div>`}
+const q17Questions=[
+['q17_1','Trouble falling or staying asleep, or sleeping too much.'],['q17_2','Feeling tired or having little energy.'],['q17_3','Poor appetite or overeating.'],['q17_4','Little interest or pleasure in doing things.'],['q17_5','Feeling down, depressed, or hopeless.'],['q17_6','Alcohol/drug use more than intended?'],['q17_7','Substance use causing problems?'],['q17_8','Feeling bad about self, failure, or letting family down.'],['q17_9','Trouble concentrating.'],['q17_10','Psychomotor agitation or slowing noticed by others.'],['q17_11','Thoughts of being better off dead or self-harm.'],['q17_12','Depressive symptoms present for 2 weeks minimum.'],['q17_13','Not better explained by bereavement alone.'],['q17_14','Not attributable to substance, medication, or another medical condition.'],['q17_15','Restlessness/impulsivity?'],['q17_16','Trauma symptoms/avoidance?'],['q17_17','Prior depressive episodes/recurrent course.']
+];
+function render17Q(){
+  // Q9 (trouble concentrating) is intentionally paired with Q15 (restlessness/impulsivity).
+  // Q16 (trauma symptoms/avoidance) is intentionally not part of this targeted response/styling group.
+  let targets=new Set(['q17_6','q17_7','q17_9','q17_15']);
+  let paired=new Set(['q17_9','q17_15']);
+  let html=q17Questions.map((q,i)=>{
+    let pairedClass=paired.has(q[0])?'bg-blue-50/40 ring-1 ring-blue-200':'bg-white';
+    return `<div class="rounded-xl border border-slate-200 ${pairedClass} p-3"><div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3"><span class="text-sm font-medium"><b class="text-slate-500 uppercase mr-2">Q${i+1}</b>${esc(q[1])}</span>${targets.has(q[0])?circleYesNo(q[0]):''}</div></div>`;
+  }).join('');
+  let box=document.getElementById('q17Entry');
+  if(box)box.innerHTML=html;
+}
+const diagnosticCrosswalkDB={
+'Alcohol Abuse, Unspecified':{dx:'Alcohol Abuse, Unspecified',icd9:'305.00',icd10:'F10.10',snomed:'Backend SNOMED CT crosswalk',dsm:'DSM-5: Alcohol Use Disorder'},
+'Polysubstance Abuse, Unspecified':{dx:'Polysubstance Abuse, Unspecified',icd9:'305.90',icd10:'F19.10',snomed:'Backend SNOMED CT crosswalk',dsm:'DSM-5: no formal polysubstance dx'},
+'ADHD, Combined / Predominantly Inattentive Presentation':{dx:'ADHD, Combined / Predominantly Inattentive Presentation',icd9:'314.01 / 314.00',icd10:'F90.2 / F90.0',snomed:'Backend SNOMED CT crosswalk',dsm:'314.01 (Combined) / 314.00'}
+};
+function dxOptions(selected=''){return '<option value="">Select diagnosis...</option>'+Object.keys(diagnosticCrosswalkDB).map(k=>`<option value="${esc(k)}" ${k===selected?'selected':''}>${esc(k)}</option>`).join('')}
+function addDiagnosisRow(selected=''){let wrap=document.getElementById('crosswalkRows');if(!wrap)return;let i=wrap.querySelectorAll('.dx-map-row').length;let d=diagnosticCrosswalkDB[selected]||{dx:'',icd9:'',icd10:'',snomed:'',dsm:''};wrap.insertAdjacentHTML('beforeend',`<div class="dx-map-row rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3"><label><span class="text-sm font-medium">Diagnosis</span><select class="dxSelect mt-1 w-full rounded-lg border border-slate-300 p-2" onchange="fillDxRow(this)">${dxOptions(selected)}</select></label><label><span class="text-sm font-medium">ICD-9</span><input class="dxIcd9 mt-1 w-full rounded-lg border border-slate-300 p-2" value="${esc(d.icd9)}"></label><label><span class="text-sm font-medium">ICD-10-CM</span><input class="dxIcd10 mt-1 w-full rounded-lg border border-slate-300 p-2" value="${esc(d.icd10)}"></label><label><span class="text-sm font-medium">SNOMED CT</span><input class="dxSnomed mt-1 w-full rounded-lg border border-slate-300 p-2" value="${esc(d.snomed)}"></label><label><span class="text-sm font-medium">DSM-5 / Notes</span><input class="dxDsm mt-1 w-full rounded-lg border border-slate-300 p-2" value="${esc(d.dsm)}"></label></div></div>`)}
+function fillDxRow(sel){let row=sel.closest('.dx-map-row');let d=diagnosticCrosswalkDB[sel.value]||{icd9:'',icd10:'',snomed:'',dsm:''};row.querySelector('.dxIcd9').value=d.icd9||'';row.querySelector('.dxIcd10').value=d.icd10||'';row.querySelector('.dxSnomed').value=d.snomed||'';row.querySelector('.dxDsm').value=d.dsm||'';}
+function getDiagnosticMappings(){return [...document.querySelectorAll('.dx-map-row')].map(r=>({diagnosis:r.querySelector('.dxSelect')?.value||'',icd9:r.querySelector('.dxIcd9')?.value||'',icd10:r.querySelector('.dxIcd10')?.value||'',snomed:r.querySelector('.dxSnomed')?.value||'',dsm:r.querySelector('.dxDsm')?.value||''})).filter(d=>d.diagnosis||d.icd9||d.icd10||d.snomed||d.dsm)}
+function diagnosticMappingHtml(){let maps=getDiagnosticMappings();if(!maps.length)return '<p>No additional diagnostic crosswalk rows selected.</p>';return `<table class="w-full border-collapse mb-4 text-sm"><thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Diagnosis</th><th class="border border-slate-300 px-3 py-2 text-left">ICD-9</th><th class="border border-slate-300 px-3 py-2 text-left">ICD-10-CM</th><th class="border border-slate-300 px-3 py-2 text-left">SNOMED CT</th><th class="border border-slate-300 px-3 py-2 text-left">DSM-5 / Notes</th></tr></thead><tbody>${maps.map(d=>`<tr><td class="border border-slate-300 px-3 py-2 font-semibold">${esc(d.diagnosis)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.icd9)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.icd10)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.snomed)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.dsm)}</td></tr>`).join('')}</tbody></table>`}
+function render(){document.getElementById('moduleContainer').innerHTML=modules.map((m,i)=>{let body='';if(m.ptsd||m.bipolar){body=m.criteria.map(c=>`<div class="rounded-xl border p-4 bg-white"><div class="flex justify-between gap-3 mb-3"><h4 class="font-semibold">${c.title}</h4><span class="text-xs bg-slate-100 px-3 py-1 rounded-full">${c.required} required</span></div><div class="space-y-2">${c.items.map(x=>cbox(x[0],x[1])).join('')}</div></div>`).join('')}else{body=`<div class="space-y-2">${m.questions.map(q=>row(q[0],q[1],m.target)).join('')}</div>`}return `<details class="bg-white rounded-2xl shadow-sm ring-1 ${m.target?'ring-blue-200':'ring-slate-200'} overflow-hidden" ${i<2||m.ptsd||m.bipolar?'open':''}><summary class="cursor-pointer px-5 py-4 ${m.target?'bg-blue-50':'bg-slate-50'} border-b"><div class="flex justify-between gap-3"><h3 class="text-lg font-semibold">${m.title}</h3><span class="text-xs ${m.target?'bg-blue-700 text-white':'bg-slate-200 text-slate-700'} px-3 py-1 rounded-full h-fit">${m.target?'Active Target':'Bypass Eligible'}</span></div></summary><div class="p-5 space-y-4">${body}</div></details>`}).join('')}
+function val(name){let e=document.querySelector(`input[name="${name}"]:checked`);return e?e.value:''}
+function setVal(name,value){let e=document.querySelector(`input[name="${name}"][value="${value}"]`);if(e)e.checked=true}
+function checked(id){let e=document.getElementById(id);return e&&e.checked}
+function yesQs(id){let m=modules.find(x=>x.id===id);return m.questions.filter(q=>val(q[0])==='Yes')}
+function criterionCount(items){return items.filter(i=>checked(i[0])).length}
+function criterionSelected(items){return items.filter(i=>checked(i[0])).map(i=>i[1])}
+function evalMDD(){let y=yesQs('mood').map(q=>q[0]);let selected=yesQs('mood').map(q=>q[1]);let count=['q1','q2','q3','q4','q5','q6','q7','q8','q9'].filter(id=>val(id)==='Yes').length;let core=y.includes('q4')||y.includes('q5');let meets=core&&count>=5&&val('q10')==='Yes'&&val('q14')==='Yes'&&val('q15')==='Yes';let recurrent=val('q17')==='Yes';return{meets,count,core,selected,code:recurrent?'F33.9':'F32.9',episode:recurrent?'Recurrent, unspecified':'Single episode, unspecified'}}
+function evalPanic(){let y=yesQs('panic').map(q=>q[0]);let selected=yesQs('panic').map(q=>q[1]);let phys=['q21','q22','q23','q24','q25','q26','q27','q28','q29','q30','q31','q32'].filter(id=>val(id)==='Yes').length;let recurrent=y.includes('q33')||(y.includes('q18')&&y.includes('q19'));let worry=y.includes('q34')||y.includes('q35')||y.includes('q20');let rule=y.includes('q36')&&y.includes('q37');let impair=y.includes('q38');return{meets:recurrent&&phys>=4&&worry&&rule&&impair,phys,recurrent,worry,rule,impair,selected,code:'F41.0'}}
+function evalPTSD(){let m=modules.find(x=>x.id==='ptsd');let criteria={},selected=[];m.criteria.forEach(c=>{let chk=c.items.filter(i=>checked(i[0]));criteria[c.key]={title:c.title,count:chk.length,required:c.required,met:chk.length>=c.required,selected:chk.map(i=>i[1])};chk.forEach(i=>selected.push(`${c.key}: ${i[1]}`))});return{meets:['A','B','C','D','E','F','G'].every(k=>criteria[k].met),criteria,selected,code:'F43.10'}}
+function evalBipolar(){let m=modules.find(x=>x.id==='bipolar');let criteria={},selected=[];m.criteria.forEach(c=>{let chk=c.items.filter(i=>checked(i[0]));criteria[c.key]={title:c.title,count:chk.length,required:c.required,met:c.required===0?chk.length>0:chk.length>=c.required,selected:chk.map(i=>i[1])};chk.forEach(i=>selected.push(`${c.key}: ${i[1]}`))});let manicA=checked('bp_manic_a1')&&(checked('bp_manic_a2')||checked('bp_manic_a3'));let manicBCount=criterionCount(m.criteria.find(c=>c.key==='MANIC_B').items);let manicBReq=(checked('bp_manic_a1')&&manicBCount>=3);let manicC=checked('bp_manic_c1')||checked('bp_manic_c2')||checked('bp_manic_c3');let manicD=checked('bp_manic_d1')||checked('bp_manic_d2');let manicMeets=manicA&&manicBReq&&manicC&&manicD;
+let hypoA=checked('bp_hypo_a1')&&checked('bp_hypo_a2');let hypoBCount=criterionCount(m.criteria.find(c=>c.key==='HYPO_B').items);let hypoB=hypoBCount>=3;let hypoCDEF=checked('bp_hypo_c1')&&checked('bp_hypo_d1')&&checked('bp_hypo_e1')&&checked('bp_hypo_e2')&&checked('bp_hypo_f1');let hypoMeets=hypoA&&hypoB&&hypoCDEF;
+let depCount=criterionCount(m.criteria.find(c=>c.key==='DEP_A').items);let depCore=checked('bp_dep_a1')||checked('bp_dep_a2');let depBC=checked('bp_dep_b1')&&checked('bp_dep_c1');let depressiveMeets=depCount>=5&&depCore&&depBC;
+let dx='Bipolar disorder criteria not fully supported';let code='';if(manicMeets){dx='Bipolar I Disorder, current or most recent episode unspecified';code='F31.9'}else if(hypoMeets&&depressiveMeets){dx='Bipolar II Disorder';code='F31.81'}
+let safetyFlags=['bp_tel_2','bp_tel_6','bp_manic_c2','bp_manic_c3','bp_dep_a9'].filter(id=>checked(id)).length;return{criteria,selected,manicMeets,manicBCount,hypoMeets,hypoBCount,depressiveMeets,depCount,depCore,dx,code,safetyFlags}}
+function field(id,f){let e=document.getElementById(id);return e&&e.value?e.value:f}
+function yesNo(flag){return flag?'Yes':'No'}
+function generate(){let mdd=evalMDD(),panic=evalPanic(),ptsd=evalPTSD(),bipolar=evalBipolar();let dx=[];if(mdd.meets)dx.push(`Major Depressive Disorder, ${mdd.episode} (${mdd.code})`);if(panic.meets)dx.push(`Panic Disorder (${panic.code})`);if(ptsd.meets)dx.push(`Post-Traumatic Stress Disorder (${ptsd.code})`);if(bipolar.code)dx.push(`${bipolar.dx} (${bipolar.code})`);let ptsdRows=Object.keys(ptsd.criteria).map(k=>{let c=ptsd.criteria[k];return `<tr><td class="border border-slate-300 px-3 py-2 font-semibold">${esc(c.title)}</td><td class="border border-slate-300 px-3 py-2">${c.met?'Met':'Not fully met'}</td><td class="border border-slate-300 px-3 py-2">${c.count}/${c.required} required</td></tr>`}).join('');let bipolarRows=Object.keys(bipolar.criteria).map(k=>{let c=bipolar.criteria[k];let label=c.required===0?'Informational':`${c.count}/${c.required} required`;return `<tr><td class="border border-slate-300 px-3 py-2 font-semibold">${esc(c.title)}</td><td class="border border-slate-300 px-3 py-2">${c.met?'Selected/met':'Not fully met'}</td><td class="border border-slate-300 px-3 py-2">${label}</td></tr>`}).join('');let dxHtml=dx.length?`<ol class="list-decimal ml-6 space-y-1">${dx.map(d=>`<li>${esc(d)}</li>`).join('')}</ol>`:`<p>No target diagnosis is fully supported by selected responses. ARNP should complete clinical interview and correlation before assigning diagnosis.</p>`;let list=(items)=>items&&items.length?`<ul class="list-disc ml-6 space-y-1">${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:`<p>None selected.</p>`;let report=`
+<div class="mx-auto max-w-4xl bg-white text-slate-950" style="font-family: Georgia, 'Times New Roman', serif; font-size: 12pt; line-height: 1.6;">
+  <h1 class="text-2xl font-bold text-center border-b border-slate-300 pb-3 mb-5">DSM-5 Telemedicine ARNP Clinical Report</h1>
+
+  <table class="w-full border-collapse mb-5 text-sm">
+    <tbody>
+      <tr><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Patient</td><td class="border border-slate-300 px-3 py-2">${esc(field('patientName','[Patient Name]'))}</td><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">DOB</td><td class="border border-slate-300 px-3 py-2">${esc(field('dob','[DOB]'))}</td></tr>
+      <tr><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">DOS</td><td class="border border-slate-300 px-3 py-2">${esc(field('dos','[DOS]'))}</td><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Provider / ARNP</td><td class="border border-slate-300 px-3 py-2">${esc(field('provider','[Provider]'))}</td></tr>
+      <tr><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Patient Location</td><td class="border border-slate-300 px-3 py-2">${esc(field('patientLocation','[Patient Location]'))}</td><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Provider Location</td><td class="border border-slate-300 px-3 py-2">${esc(field('providerLocation','[Provider Location]'))}</td></tr>
+      <tr><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Telehealth Consent</td><td class="border border-slate-300 px-3 py-2">${esc(field('consent','[Consent]'))}</td><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Emergency Contact</td><td class="border border-slate-300 px-3 py-2">${esc(field('emergency','[Emergency Contact]'))}</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Chief Complaint / Encounter</h2>
+  <p>Telemedicine behavioral health screening and diagnostic clarification. This report includes exactly four active modules: Major Depressive Disorder, Panic Disorder, PTSD Criteria Override, and Bipolar Disorder.</p>
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Major Depressive Disorder</h2>
+  <p><strong>Status:</strong> ${mdd.meets?'DSM-5 criteria supported':'Criteria not fully supported'}.</p>
+  <p><strong>Depressive symptom count:</strong> ${mdd.count}. <strong>Core symptom present:</strong> ${yesNo(mdd.core)}.</p>
+  <p><strong>Duration criterion:</strong> Depressive symptoms must be present for 2 weeks minimum.</p>
+  <p><strong>Positive findings:</strong></p>${list(mdd.selected)}
+  <p><strong>Clinical caution:</strong> If bipolar criteria are positive, avoid diagnosing unipolar MDD without reconciling lifetime manic/hypomanic history.</p>
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Panic Disorder</h2>
+  <p><strong>Status:</strong> ${panic.meets?'DSM-5 criteria supported':'Criteria not fully supported'}.</p>
+  <p><strong>Panic symptom count:</strong> ${panic.phys}. <strong>Recurrent/unexpected attacks:</strong> ${yesNo(panic.recurrent)}. <strong>Persistent worry or maladaptive behavior:</strong> ${yesNo(panic.worry)}. <strong>Rule-outs documented:</strong> ${yesNo(panic.rule)}. <strong>Impairment/distress:</strong> ${yesNo(panic.impair)}.</p>
+  <p><strong>Duration criterion:</strong> Panic disorder symptoms must be present for 4 weeks minimum.</p>
+  <p><strong>Positive findings:</strong></p>${list(panic.selected)}
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">PTSD Criteria Override</h2>
+  <p><strong>Status:</strong> ${ptsd.meets?'DSM-5 PTSD criteria supported':'Criteria not fully supported'}.</p>
+  <table class="w-full border-collapse mb-4 text-sm"><thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Criterion</th><th class="border border-slate-300 px-3 py-2 text-left">Status</th><th class="border border-slate-300 px-3 py-2 text-left">Threshold</th></tr></thead><tbody>${ptsdRows}</tbody></table>
+  <p><strong>Positive findings:</strong></p>${list(ptsd.selected)}
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Bipolar Disorder</h2>
+  <p><strong>Status:</strong> ${bipolar.code?esc(bipolar.dx):'Bipolar I/Bipolar II criteria not fully supported by selected responses'}.</p>
+  <table class="w-full border-collapse mb-4 text-sm"><thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Criterion Group</th><th class="border border-slate-300 px-3 py-2 text-left">Status</th><th class="border border-slate-300 px-3 py-2 text-left">Threshold</th></tr></thead><tbody>${bipolarRows}</tbody></table>
+  <p><strong>Manic episode supported:</strong> ${yesNo(bipolar.manicMeets)}. <strong>Manic symptom count:</strong> ${bipolar.manicBCount}.</p>
+  <p><strong>Hypomanic episode supported:</strong> ${yesNo(bipolar.hypoMeets)}. <strong>Hypomanic symptom count:</strong> ${bipolar.hypoBCount}.</p>
+  <p><strong>Major depressive episode supported within bipolar module:</strong> ${yesNo(bipolar.depressiveMeets)}. <strong>Depressive symptom count:</strong> ${bipolar.depCount}. <strong>Depressed mood or anhedonia present:</strong> ${yesNo(bipolar.depCore)}.</p>
+  <p><strong>Positive findings:</strong></p>${list(bipolar.selected)}
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Diagnostic Impression & ICD-10 Coding</h2>
+  ${dxHtml}
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Additional Diagnostic Crosswalk Mapping</h2>
+  ${diagnosticMappingHtml()}
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Brief Justification Narrative</h2>
+  <p>The diagnostic formulation is based on four active modules only. MDD mapping uses F32.9 for single unspecified episode or F33.9 for recurrent unspecified episode based on selected episode-history responses. Panic Disorder maps to F41.0 when recurrent unexpected attacks, sufficient panic symptoms, persistent concern/behavioral change, impairment, and rule-outs are supported. PTSD maps to F43.10 when Criteria A through G are met. Bipolar I maps to F31.9 when at least one lifetime manic episode is supported. Bipolar II maps to F31.81 when at least one hypomanic episode and at least one major depressive episode are supported, without history of a full manic episode.</p>
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Telemedicine Assessment Considerations</h2>
+  <ul class="list-disc ml-6 space-y-1">
+    <li>Verify patient identity, physical location, privacy, call-back number, emergency contact, and local emergency resources at the start of the visit.</li>
+    <li>Assess suicide risk, homicide risk, psychosis, intoxication/withdrawal, medication adherence, access to lethal means, agitation, impulsivity, and ability to maintain safety.</li>
+    <li>For bipolar presentations, obtain a longitudinal timeline of mood episodes, sleep changes, hospitalization, psychosis, antidepressant/stimulant exposure, substance use, family history, postpartum or hormonal triggers when relevant, and collateral history when available.</li>
+    <li>Consider medical contributors and baseline monitoring needs, including pregnancy status when relevant, CBC/CMP/renal/thyroid testing, metabolic parameters, A1c/lipids/weight/BMI, serum levels when indicated, EKG when clinically appropriate, and medication interaction review.</li>
+  </ul>
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">ARNP Prescribing / Management Guidance</h2>
+  <ul class="list-disc ml-6 space-y-1">
+    <li>Bipolar depression or suspected bipolar disorder should generally not be treated with antidepressant monotherapy due to risk of mood switching or cycle acceleration.</li>
+    <li>Evidence-informed pharmacologic options may include mood stabilizers and/or atypical antipsychotics selected according to symptom polarity, prior response, adverse effect profile, pregnancy potential, comorbidities, labs, and scope-of-practice requirements.</li>
+    <li>Provide psychoeducation about sleep regularity, early warning signs, medication adherence, avoidance of alcohol/substances, psychotherapy, crisis planning, and family/collateral involvement when appropriate.</li>
+    <li>Arrange close follow-up after medication initiation or change, monitor adverse effects and safety, and coordinate psychiatry consultation for diagnostic uncertainty, psychosis, high-risk medication complexity, pregnancy, treatment resistance, or elevated safety risk.</li>
+    <li>Emergency evaluation or higher level of care is indicated for manic psychosis, dangerous impulsivity, inability to sleep with escalating mania, suicidal/homicidal intent, inability to maintain safety, severe intoxication/withdrawal, or inability to participate safely in telemedicine.</li>
+  </ul>
+
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Safety Reminder</h2>
+  <p>If suicidal ideation, homicidal ideation, psychosis, intoxication/withdrawal risk, abuse, self-harm risk, dangerous impulsivity, manic escalation, or inability to maintain safety is endorsed or suspected, complete same-session risk assessment, safety planning, crisis resources, and disposition.</p>
+
+  <p class="mt-8"><strong>ARNP Signature:</strong> ____________________________</p>
+</div>`;document.getElementById('noteOutput').innerHTML=report;}function bypass(){modules.filter(m=>!m.target).forEach(m=>m.questions.forEach(q=>setVal(q[0],'No')));alert('There are no non-target modules in this four-module version. All modules remain active and editable.')}
+function clearAll(){document.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(e=>e.checked=false);document.getElementById('noteOutput').innerHTML=`<div class="mx-auto max-w-4xl bg-white" style="font-family: Georgia, 'Times New Roman', serif;"><h1 class="text-2xl font-bold text-center border-b border-slate-300 pb-3 mb-4">DSM-5 Telemedicine ARNP Clinical Report</h1><p class="text-slate-600 text-center">Click “Generate ARNP Telemedicine Note” after completing active modules.</p></div>`;} 
+function copy(){let o=document.getElementById('noteOutput');let range=document.createRange();range.selectNodeContents(o);let sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);try{document.execCommand('copy');document.getElementById('copyStatus').textContent='Word-style report copied. Paste into Microsoft Word to preserve formatting.';}catch(e){navigator.clipboard.writeText(o.innerText).then(()=>document.getElementById('copyStatus').textContent='Plain text copied.').catch(()=>document.getElementById('copyStatus').textContent='Copy failed; select and copy manually.')}sel.removeAllRanges();}
+document.addEventListener('DOMContentLoaded',()=>{render();render17Q();document.getElementById('dos').value=new Date().toISOString().slice(0,10);document.getElementById('bypassBtn').onclick=bypass;document.getElementById('generateBtn').onclick=generate;document.getElementById('clearBtn').onclick=clearAll;let addDx=document.getElementById('addDxBtn');if(addDx)addDx.onclick=()=>addDiagnosisRow();});
+</script>
+</body>
+</html>

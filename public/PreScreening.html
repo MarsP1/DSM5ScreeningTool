@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARNP DSM-5 / ICD-10 Telemedicine Modular Progress Note Tool</title>
+<style>
+:root{--navy:#1f4e79;--blue:#2f6fa3;--bg:#f3f6fa;--line:#cfd8e3;--soft:#fbfdff;--green:#dcfce7;--yellow:#fef3c7;--red:#fee2e2;--ink:#111827;--muted:#5b6775}
+*{box-sizing:border-box} body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--ink);line-height:1.35}
+header{background:linear-gradient(135deg,var(--navy),#173958);color:#fff;padding:22px 28px} header h1{margin:0;font-size:25px} header p{margin:6px 0 0;color:#e9f3ff}
+main{max-width:1180px;margin:22px auto;background:#fff;padding:24px;border-radius:12px;box-shadow:0 2px 14px rgba(17,24,39,.14)}
+h2{color:var(--navy);border-bottom:2px solid #d9e8f5;padding-bottom:7px;margin-top:26px} h3{margin:16px 0 8px;color:#173958}
+.notice{border:1px solid #bad3e8;background:#f4f9ff;padding:12px;border-radius:10px;margin:12px 0}.warning{border-color:#f0d290;background:#fff8e6}.danger{border-color:#efb1b1;background:#fff1f1}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{font-weight:700;font-size:13px;color:#374151} input,textarea,select{width:100%;padding:8px;margin-top:4px;border:1px solid #b6c7d6;border-radius:6px;background:#fff;font:inherit} textarea{min-height:74px;resize:vertical}.largeText{min-height:135px}
+button{background:var(--navy);color:white;border:0;padding:10px 14px;margin:6px 6px 6px 0;border-radius:7px;cursor:pointer;font-weight:700} button.secondary{background:#6b7280} button.green{background:#2f7d32} button.red{background:#991b1b}
+.pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#e8f1fa;color:#173958;margin:2px}.card{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--soft);margin:10px 0}.moduleCard{border-left:6px solid var(--blue)}
+.crosswalk{border:2px solid var(--navy);background:#f8fbff;border-radius:10px;padding:14px;margin:14px 0}.crosswalk h3{margin-top:0}.codeRow{display:grid;grid-template-columns:1.4fr .8fr .8fr .8fr;gap:10px;margin:10px 0;align-items:end}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px} th,td{border:1px solid var(--line);padding:8px;vertical-align:top} th{background:var(--navy);color:#fff}.low{background:var(--green)}.mod{background:var(--yellow)}.high{background:var(--red)}
+.noteOut{white-space:pre-wrap;border:1px solid var(--line);background:#fbfdff;padding:14px;border-radius:10px;min-height:260px;font-family:Arial,Helvetica,sans-serif}.small{font-size:12px;color:var(--muted)}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.codeRow{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}@media(max-width:560px){.grid{grid-template-columns:1fr}.codeRow{grid-template-columns:1fr}main{margin:0;border-radius:0}}
+@media print{button,.noPrint{display:none!important}body{background:white}main{box-shadow:none;margin:0}.noteOut{border:0;padding:0}.card,.crosswalk{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+<h1>ARNP DSM-5 / ICD-10 Telemedicine Modular Progress Note Tool</h1>
+<p>Standalone local HTML software. No installation. Clean DSM-5 / ICD-10 / ICD-11 wording. No internal date/file-code labels.</p>
+</header>
+<main>
+<section>
+<h2>Patient / Visit Information</h2>
+<div class="grid">
+<div><label>Patient Name<input id="patientName" value="John Doe"></label></div>
+<div><label>Date of Birth<input id="dob" type="date" value="1960-02-22"></label></div>
+<div><label>ID / MRN<input id="mrn" value="12345"></label></div>
+<div><label>Date of Service<input id="dos" type="date"></label></div>
+<div><label>Provider Name<input id="provider" value="DR G, ARNP"></label></div>
+<div><label>Visit Type<select id="visitType"><option>Telemedicine</option><option>In-Person</option><option>Hybrid</option></select></label></div>
+<div><label>Time<input id="time" value="2:00 PM – 3:00 PM"></label></div>
+<div><label>Telehealth Consent<select id="consent"><option>Obtained and documented</option><option>Not obtained</option><option>Not applicable</option></select></label></div>
+<div><label>Patient Location<input id="patientLocation" value="Office"></label></div>
+<div><label>Provider Location<input id="providerLocation" value="Office"></label></div>
+<div><label>Emergency Contact<input id="emergency" value="Not Available"></label></div>
+<div><label>Note Status<select id="noteStatus"><option>Draft</option><option>Final</option><option>Addendum</option></select></label></div>
+</div>
+</section>
+
+<section>
+<h2>Phase 1: Differential Screener</h2>
+<div class="notice warning"><b>Locked workflow:</b> Enter chief complaint and screener positives first. Select no more than 3 modules for detailed documentation. This tool is a documentation aid and does not independently diagnose.</div>
+<div class="grid2">
+<div><label>Chief Complaint / Presentation<textarea id="chief" class="largeText">Depression and anxiety.</textarea></label></div>
+<div><label>Clinical Context / Duration / Rule-Outs<textarea id="context" class="largeText">Symptoms present for approximately four weeks. Review duration, impairment, medical/substance contributors, safety, mania, psychosis, and collateral records as clinically indicated.</textarea></label></div>
+</div>
+<h3>Cross-Cutting Screener</h3>
+<div id="screener"></div>
+<div class="noPrint"><button onclick="scoreScreener()">Score Differential Screener</button><button class="secondary" onclick="clearScreener()">Clear Screener</button></div>
+<div id="screenSummary"></div>
+</section>
+
+<section>
+<h2>Phase 2: Locked Modular Assessment</h2>
+<p class="small">Select no more than 3 modules. The workspace below will show only selected modules.</p>
+<div class="grid">
+<label><input type="checkbox" class="modulePick" value="Depression" checked> Depression</label>
+<label><input type="checkbox" class="modulePick" value="Anxiety" checked> Anxiety</label>
+<label><input type="checkbox" class="modulePick" value="Panic Disorder"> Panic Disorder</label>
+<label><input type="checkbox" class="modulePick" value="PTSD"> PTSD</label>
+<label><input type="checkbox" class="modulePick" value="Bipolar Disorder"> Bipolar Disorder</label>
+<label><input type="checkbox" class="modulePick" value="ADHD"> ADHD</label>
+<label><input type="checkbox" class="modulePick" value="Eating Disorder"> Eating Disorder</label>
+<label><input type="checkbox" class="modulePick" value="Neurocognitive"> Neurocognitive</label>
+<label><input type="checkbox" class="modulePick" value="Substance Use"> Substance Use</label>
+</div>
+<div class="noPrint"><button onclick="renderModules()">Load Selected Module(s)</button></div>
+<div id="moduleWorkspace"></div>
+</section>
+
+<section class="crosswalk">
+<h2>DSM-5 / ICD-10 / ICD-11 Diagnostic Mapping</h2>
+<p class="small">Editable diagnostic crosswalk. DSM numeric identifiers are included for documentation cross-reference; billing generally relies on ICD-10-CM/ICD codes.</p>
+<div id="crosswalkRows"></div>
+<div class="noPrint"><button onclick="addBlankDx()">Add Diagnosis Row</button></div>
+</section>
+
+<section>
+<h2>E-Signature / Printed Name</h2>
+<div class="notice"><b>Provider attestation:</b> ARNP/Doctor may print their name below for the generated note and then print/sign as required by policy.</div>
+<div class="grid2">
+<div><label>ARNP / Doctor Printed Name<input id="signatureName" placeholder="Type ARNP/Doctor printed name"></label></div>
+<div><label>Signature Date<input id="signatureDate" type="date"></label></div>
+</div>
+</section>
+
+<section>
+<h2>Phase 3: Generate Progress Note</h2>
+<div class="noPrint">
+<button class="green" onclick="generateNote()">Generate SOAP Progress Note</button>
+<button class="secondary" onclick="copyNote()">Copy Note</button>
+<button class="secondary" onclick="window.print()">Print / Save as PDF</button>
+</div>
+<div id="note" class="noteOut">Click “Generate SOAP Progress Note.”</div>
+</section>
+</main>
+<script>
+const today=new Date().toISOString().slice(0,10);document.getElementById('dos').value=today;document.getElementById('signatureDate').value=today;
+const screenQuestions=[
+['Depression','Little interest or pleasure in doing things?'],['Depression','Feeling down, depressed, or hopeless?'],
+['Anxiety','Feeling nervous, anxious, or on edge?'],['Anxiety','Worrying about many different things?'],['Panic Disorder','Sudden anxiety/panic attack?'],
+['Substance Use','Thought patient should cut down on alcohol/drugs?'],['Substance Use','Anyone complained about drinking or drug use?'],
+['Psychosis','Feeling others are against/following/trying to harm patient?'],['Psychosis','Hearing voices/sounds others did not hear?'],
+['Bipolar Spectrum','More self-confident than usual?'],['Bipolar Spectrum','Needed less sleep than usual and felt rested?'],['Eating Disorder','Eating felt out of control?'],
+['Somatic','Multiple physical symptoms causing distress?'],['Neurocognitive','Memory or learning problems beyond expected?'],
+['ADHD','Last 6 months: Easily distracted by extraneous stimuli?'],
+['ADHD','Last 6 months: Difficulty following through on instructions, not due to oppositional behavior or comprehension failure?'],
+['ADHD','Last 6 months: Difficulty sustaining attention in tasks or play at work or home activities?']
+];
+const defaultDx={
+'Depression':{dx:'Major Depressive Disorder, Single Episode',dsm:'296.20–296.26',icd10:'F32.9 / severity-specific F32.x',icd11:'6A70'},
+'Anxiety':{dx:'Generalized Anxiety Disorder',dsm:'300.02',icd10:'F41.1',icd11:'6B00'},
+'Panic Disorder':{dx:'Panic Disorder',dsm:'300.01',icd10:'F41.0',icd11:'6B01'},
+'PTSD':{dx:'Posttraumatic Stress Disorder',dsm:'309.81',icd10:'F43.10',icd11:'6B40'},
+'ADHD':{dx:'ADHD, Combined / Predominantly Inattentive Presentation',dsm:'314.01 (Combined) / 314.00 (Inattentive)',icd10:'F90.2 / F90.0',icd11:'6A05.2 / 6A05.0'},
+'Bipolar Disorder':{dx:'Bipolar Disorder (Bipolar Spectrum)',dsm:'296.80',icd10:'F31.9',icd11:'6A6Z'},
+'Eating Disorder':{dx:'Eating Disorder Differential: Anorexia Nervosa, Bulimia Nervosa, or Binge Eating Disorder',dsm:'307.1 / 307.51',icd10:'F50.01 / F50.2 / F50.81',icd11:'6B80 / 6B81 / 6B82'},
+'Neurocognitive':{dx:'Mild or Major Neurocognitive Disorder',dsm:'331.83 / 294.20 / 294.21',icd10:'G31.84 / F03.90',icd11:'6D71 / 6D80-6D8Z'},
+'Substance Use':{dx:'Substance Use Disorder, specify substance and severity',dsm:'DSM-5 substance-specific code',icd10:'F10-F19 series',icd11:'6C40-6C4Z series'}
+};
+function el(id){return document.getElementById(id)} function val(id){return el(id)?.value||''}
+function renderScreener(){el('screener').innerHTML=screenQuestions.map((q,i)=>`<div class="card"><b>${i+1}. [${q[0]}]</b> ${q[1]}<br><select id="sq${i}"><option></option><option>Yes</option><option>No</option><option>Unknown</option></select></div>`).join('')}
+function clearScreener(){screenQuestions.forEach((_,i)=>el('sq'+i).value='');scoreScreener()}
+function scoreScreener(){let counts={};screenQuestions.forEach((q,i)=>{if(el('sq'+i).value==='Yes')counts[q[0]]=(counts[q[0]]||0)+1});let rows=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(k=>`<tr class="${counts[k]>=2?'high':'mod'}"><td>${k}</td><td>${counts[k]}</td><td>${counts[k]>=2?'High Clinical Indicator':'Further Evaluation Needed'}</td><td>${suggestDx(k)}</td></tr>`).join('')||'<tr class="low"><td colspan="4">No positive screen items recorded.</td></tr>';el('screenSummary').innerHTML=`<h3>Differential Screener Results</h3><table><tr><th>Domain</th><th>Positive Count</th><th>Indicator</th><th>Potential Differential</th></tr>${rows}</table>`}
+function suggestDx(k){return k==='Bipolar Spectrum'?'Bipolar Disorder or other mood disorder differential':(defaultDx[k]?.dx||k+' differential')}
+function selectedModules(){let picks=[...document.querySelectorAll('.modulePick:checked')].map(x=>x.value);if(picks.length>3){alert('Locked workflow allows no more than 3 modules at a time. The first 3 selected modules will be used.');picks=picks.slice(0,3);document.querySelectorAll('.modulePick').forEach(x=>x.checked=picks.includes(x.value))}return picks}
+function renderModules(){let picks=selectedModules();el('moduleWorkspace').innerHTML=picks.map(m=>`<div class="card moduleCard"><h3>${m} Module</h3><div class="grid2"><label>Clinical Observations<textarea id="${safe(m)}_obs"></textarea></label><label>Patient Statements<textarea id="${safe(m)}_stmt"></textarea></label><label>Mental Status Examination<textarea id="${safe(m)}_mse"></textarea></label><label>Duration / Functional Impairment<textarea id="${safe(m)}_imp"></textarea></label><label>Safety / Risk / Rule-Outs<textarea id="${safe(m)}_risk"></textarea></label><label>Final Impression<textarea id="${safe(m)}_final">${defaultDx[m]?.dx||''}</textarea></label></div></div>`).join('')||'<div class="notice danger">Select up to 3 modules.</div>';renderCrosswalk()}
+function safe(s){return s.replace(/[^a-z0-9]/gi,'_')}
+function renderCrosswalk(){let picks=selectedModules();let rows=picks.map((m,i)=>dxRow(defaultDx[m]||{dx:m,dsm:'',icd10:'',icd11:''},i)).join('');el('crosswalkRows').innerHTML=rows||''}
+function dxRow(d,i){return `<div class="codeRow"><label>Diagnosis<input class="dxName" value="${d.dx||''}"></label><label>DSM-5 Code<input class="dsmCode" value="${d.dsm||''}"></label><label>ICD-10-CM<input class="icd10" value="${d.icd10||''}"></label><label>ICD-11<input class="icd11" value="${d.icd11||''}"></label></div>`}
+function addBlankDx(){el('crosswalkRows').insertAdjacentHTML('beforeend',dxRow({dx:'',dsm:'',icd10:'',icd11:''},99))}
+function dxText(){return [...document.querySelectorAll('.codeRow')].map(r=>{let dx=r.querySelector('.dxName').value, dsm=r.querySelector('.dsmCode').value, i10=r.querySelector('.icd10').value, i11=r.querySelector('.icd11').value;return `${dx}\nDSM-5 Code: ${dsm}\nICD-10-CM: ${i10}\nICD-11: ${i11}`}).filter(x=>x.trim()).join('\n\n')}
+function moduleText(){let picks=selectedModules();return picks.map(m=>{let s=safe(m);return `${m} Module\nClinical Observations: ${val(s+'_obs')||'Not documented'}\nPatient Statements: ${val(s+'_stmt')||'Not documented'}\nMental Status Examination: ${val(s+'_mse')||'Not documented'}\nDuration/Functional Impairment: ${val(s+'_imp')||'Not documented'}\nSafety/Risk/Rule-Outs: ${val(s+'_risk')||'Not documented'}\nFinal Impression: ${val(s+'_final')||'Not finalized'}`}).join('\n\n')}
+function generateNote(){scoreScreener();let note=`TELEMEDICINE PSYCHIATRIC PROGRESS NOTE\n\nPATIENT INFORMATION\nPatient: ${val('patientName')}\nDOB: ${val('dob')}\nID/MRN: ${val('mrn')}\nDate of Service: ${val('dos')}\nProvider: ${val('provider')}\nVisit Type: ${val('visitType')}\nTime: ${val('time')}\nPatient Location: ${val('patientLocation')}\nProvider Location: ${val('providerLocation')}\nTelehealth Consent: ${val('consent')}\nEmergency Contact: ${val('emergency')}\nNote Status: ${val('noteStatus')}\n\nSUBJECTIVE\nChief Complaint / Presentation:\n${val('chief')}\n\nClinical Context / History / Rule-Outs:\n${val('context')}\n\nOBJECTIVE\nTelemedicine observations and mental status findings are documented within the selected locked modules below.\n\nSELECTED LOCKED MODULE FINDINGS\n${moduleText()}\n\nDSM-5 / ICD-10 / ICD-11 DIAGNOSTIC MAPPING\n${dxText()}\n\nASSESSMENT\nDifferential diagnosis was reviewed using a locked modular workflow. Diagnoses remain clinical impressions unless finalized by the ARNP after full DSM-5 criteria review, symptom duration assessment, functional impairment assessment, safety evaluation, substance/medical rule-outs, and collateral/records review as indicated.\n\nPLAN\n- Reviewed symptoms, functional impairment, and safety/risk considerations.\n- Complete or update safety plan/disposition if suicidal ideation, homicidal ideation, psychosis, mania, intoxication/withdrawal, or grave disability is present.\n- Consider medical/substance contributors and coordinate labs, records, and collateral information as clinically indicated.\n- Treatment recommendations, medication decisions, psychotherapy/referrals, and follow-up interval to be finalized by the ARNP.\n\nARNP / Doctor Printed Name: ${val('signatureName')||val('provider')}
+ARNP / Doctor Signature: ____________________________
+Signature Date: ${val('signatureDate')||val('dos')}`;el('note').innerText=note}
+function copyNote(){generateNote();navigator.clipboard.writeText(el('note').innerText).then(()=>alert('Clinical note copied.'))}
+renderScreener();renderModules();
+</script>
+</body>
+</html>
