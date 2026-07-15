@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import "./db.jsx";
+import "./ScreeningsDB.jsx";
 
 import ScreeningInterface from "./Pages/ScreeningInterface.jsx";
 import Screener from "./Pages/Screening.jsx";
@@ -9,6 +9,7 @@ import PreScreener from "./Pages/PreScreening.jsx";
 import "./CSS/App.css";
 
 function App() {
+  addPatient();
 
   return (
     <BrowserRouter>
