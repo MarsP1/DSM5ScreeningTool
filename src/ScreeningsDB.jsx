@@ -38,3 +38,52 @@ async function Screenings() {
     `);
 }
 
+async function addPatient(patientName, dob, mrn){
+    const db = await Database.load("sqlite:Screenings.db");
+   const info = await db.execute(`
+        insert into patients
+        (patient_name, date_of_birth, medical_record_num)
+        values ($1, $2, $3)`,
+        [patientName,dob,mrn]
+    );
+    return info.lastInsertId;
+}
+
+async function findPatient(patientName, dob, mrn) {
+    const db = await Database.load("sqlite:Screenings.db");
+
+    const rows = await db.select(
+        `SELECT patient_id
+         FROM patients
+         WHERE medical_record_num = $1`,
+        [mrn]
+    );
+
+    if (rows.length > 0) {
+        return rows[0].patient_id;
+    }
+
+    return await addPatient(patientName, dob, mrn);
+}
+
+async function screeningRecords(patientId, dos, program, formDataJson, generatedNote){
+    const db = await Database.load("sqlite:Screenings.db");
+    await db.execute(`
+        insert into screening_records
+        (patient_id, date_of_service, program_name, form_data_json, generated_note)
+        values ($1, $2, $3, $4, $5)`,
+        [patientId, dos, program, formDataJson, generatedNote]
+    );
+}
+
+async function settings(providerName, clinicName){
+    const db = await Database.load("sqlite:Screenings.db");
+    await db.execute(`
+        insert into settings
+        (provider_name, clinic_name)
+        values ($1, $2)`,
+        [providerName, clinicName]
+    );
+}
+export { Screenings, addPatient, findPatient, screeningRecords, settings };
+

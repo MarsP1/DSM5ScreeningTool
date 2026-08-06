@@ -29,7 +29,7 @@
           <label><span class="text-sm font-medium">DOB</span><input id="dob" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="date"></label>
           <label><span class="text-sm font-medium">Date of Service</span><input id="dos" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="date"></label>
           <label><span class="text-sm font-medium">Provider / ARNP</span><input id="provider" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
-          <label><span class="text-sm font-medium">Patient Location</span><input id="patientLocation" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
+          <label><span class="text-sm font-medium">MRN</span><input id="patientmrn" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
           <label><span class="text-sm font-medium">Provider Location</span><input id="providerLocation" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
           <label><span class="text-sm font-medium">Telehealth Consent</span><select id="consent" class="mt-1 w-full rounded-lg border border-slate-300 p-2"><option>Yes</option><option>No</option><option>Verbal consent documented</option></select></label>
           <label><span class="text-sm font-medium">Emergency Contact</span><input id="emergency" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
@@ -45,7 +45,9 @@
           <div class="flex flex-wrap gap-3">
             <button id="bypassBtn" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">Simulate Complete / Bypass Non-Target Modules</button>
             <button id="generateBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Generate ARNP Telemedicine Note</button>
+            <button Id="saveBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Save</button>
             <button id="clearBtn" class="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Clear All</button>
+            
           </div>
         </div>
       </section>
@@ -242,6 +244,143 @@ function generate(){let mdd=evalMDD(),panic=evalPanic(),ptsd=evalPTSD(),bipolar=
 function clearAll(){document.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(e=>e.checked=false);document.getElementById('noteOutput').innerHTML=`<div class="mx-auto max-w-4xl bg-white" style="font-family: Georgia, 'Times New Roman', serif;"><h1 class="text-2xl font-bold text-center border-b border-slate-300 pb-3 mb-4">DSM-5 Telemedicine ARNP Clinical Report</h1><p class="text-slate-600 text-center">Click “Generate ARNP Telemedicine Note” after completing active modules.</p></div>`;} 
 function copy(){let o=document.getElementById('noteOutput');let range=document.createRange();range.selectNodeContents(o);let sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);try{document.execCommand('copy');document.getElementById('copyStatus').textContent='Word-style report copied. Paste into Microsoft Word to preserve formatting.';}catch(e){navigator.clipboard.writeText(o.innerText).then(()=>document.getElementById('copyStatus').textContent='Plain text copied.').catch(()=>document.getElementById('copyStatus').textContent='Copy failed; select and copy manually.')}sel.removeAllRanges();}
 document.addEventListener('DOMContentLoaded',()=>{render();render17Q();document.getElementById('dos').value=new Date().toISOString().slice(0,10);document.getElementById('bypassBtn').onclick=bypass;document.getElementById('generateBtn').onclick=generate;document.getElementById('clearBtn').onclick=clearAll;let addDx=document.getElementById('addDxBtn');if(addDx)addDx.onclick=()=>addDiagnosisRow();});
+
+//ai generated
+const moduleDefinitions = [
+  {
+    key: 'mood',
+    label: 'Mood / Depression — MDD',
+    ids: [
+      'q1','q2','q3','q4','q5','q6','q7','q8',
+      'q9','q10','q11','q12','q13','q14',
+      'q15','q16','q17'
+    ]
+  },
+
+  {
+    key: 'panic',
+    label: 'Panic / Anxiety — Panic Disorder',
+    ids: [
+      'q18','q19','q20','q21','q22','q23',
+      'q24','q25','q26','q27','q28','q29',
+      'q30','q31','q32','q33','q34','q35',
+      'q36','q37','q38','q39','q40','q41',
+      'q42','q43','q44','q45'
+    ]
+  },
+
+  {
+    key: 'ptsd',
+    label: 'PTSD Criteria Override',
+    ids: [
+      'ptsd_a1','ptsd_a2','ptsd_a3','ptsd_a4','ptsd_a5',
+
+      'ptsd_b1','ptsd_b2','ptsd_b3','ptsd_b4','ptsd_b5',
+
+      'ptsd_c1','ptsd_c2',
+
+      'ptsd_d1','ptsd_d2','ptsd_d3',
+      'ptsd_d4','ptsd_d5','ptsd_d6','ptsd_d7',
+
+      'ptsd_e1','ptsd_e2','ptsd_e3',
+      'ptsd_e4','ptsd_e5','ptsd_e6',
+
+      'ptsd_f1',
+
+      'ptsd_g1'
+    ]
+  },
+
+  {
+    key: 'bipolar',
+    label: 'Bipolar Disorder — Bipolar I / Bipolar II',
+    ids: [
+      'bp_manic_a1','bp_manic_a2','bp_manic_a3',
+
+      'bp_manic_b1','bp_manic_b2','bp_manic_b3',
+      'bp_manic_b4','bp_manic_b5','bp_manic_b6',
+      'bp_manic_b7',
+
+      'bp_manic_c1','bp_manic_c2','bp_manic_c3',
+
+      'bp_manic_d1','bp_manic_d2',
+
+      'bp_hypo_a1','bp_hypo_a2',
+
+      'bp_hypo_b1','bp_hypo_b2','bp_hypo_b3',
+      'bp_hypo_b4','bp_hypo_b5','bp_hypo_b6',
+      'bp_hypo_b7',
+
+      'bp_hypo_c1',
+      'bp_hypo_d1',
+      'bp_hypo_e1','bp_hypo_e2',
+      'bp_hypo_f1',
+
+      'bp_dep_a1','bp_dep_a2','bp_dep_a3',
+      'bp_dep_a4','bp_dep_a5','bp_dep_a6',
+      'bp_dep_a7','bp_dep_a8','bp_dep_a9',
+
+      'bp_dep_b1',
+      'bp_dep_c1',
+
+      'bp_tel_1','bp_tel_2','bp_tel_3',
+      'bp_tel_4','bp_tel_5','bp_tel_6'
+    ]
+  }
+];
+
+document.getElementById("saveBtn").addEventListener("click", () => {
+
+    const responses = {};
+
+    // Get all Yes/No radio buttons
+    document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+        responses[input.name] = input.value;
+    });
+
+    // Get all checkboxes (PTSD/Bipolar)
+    document.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        responses[input.id] = input.checked;
+    });
+
+    const formDataJson = JSON.stringify(responses);
+
+    console.log(responses);
+    console.log(formDataJson);
+
+});
+
+
+document.getElementById("saveBtn").addEventListener("click", () => {
+  const responses = {};
+  document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+      responses[input.name] = input.value;
+  });
+  document.querySelectorAll('input[type="checkbox"]').forEach(input => {
+      responses[input.id] = input.checked;
+  });  
+
+  const patientName = document.getElementById("patientName").value;
+  const dob = document.getElementById("dob").value;
+  const mrn = document.getElementById("patientmrn").value;
+  const dos = document.getElementById("dos").value;
+  const program = "Screener";
+  const formDataJson = JSON.stringify(responses);
+  const generatedNote = document.getElementById("noteOutput").textContent;
+  const providerName = document.getElementById("provider").value;
+  
+  window.parent.postMessage({
+    patientName,
+    dob,
+    mrn,
+    dos,
+    program,
+    formDataJson,
+    generatedNote,
+    providerName
+  }, "*");
+});
+
 </script>
 </body>
 </html>

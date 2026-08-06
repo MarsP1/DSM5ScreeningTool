@@ -1,150 +1,792 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ARNP DSM-5 / ICD-10 Telemedicine Modular Progress Note Tool</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clinical Screening Assessment • ARNP Note</title>
 <style>
-:root{--navy:#1f4e79;--blue:#2f6fa3;--bg:#f3f6fa;--line:#cfd8e3;--soft:#fbfdff;--green:#dcfce7;--yellow:#fef3c7;--red:#fee2e2;--ink:#111827;--muted:#5b6775}
-*{box-sizing:border-box} body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--ink);line-height:1.35}
-header{background:linear-gradient(135deg,var(--navy),#173958);color:#fff;padding:22px 28px} header h1{margin:0;font-size:25px} header p{margin:6px 0 0;color:#e9f3ff}
-main{max-width:1180px;margin:22px auto;background:#fff;padding:24px;border-radius:12px;box-shadow:0 2px 14px rgba(17,24,39,.14)}
-h2{color:var(--navy);border-bottom:2px solid #d9e8f5;padding-bottom:7px;margin-top:26px} h3{margin:16px 0 8px;color:#173958}
-.notice{border:1px solid #bad3e8;background:#f4f9ff;padding:12px;border-radius:10px;margin:12px 0}.warning{border-color:#f0d290;background:#fff8e6}.danger{border-color:#efb1b1;background:#fff1f1}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-label{font-weight:700;font-size:13px;color:#374151} input,textarea,select{width:100%;padding:8px;margin-top:4px;border:1px solid #b6c7d6;border-radius:6px;background:#fff;font:inherit} textarea{min-height:74px;resize:vertical}.largeText{min-height:135px}
-button{background:var(--navy);color:white;border:0;padding:10px 14px;margin:6px 6px 6px 0;border-radius:7px;cursor:pointer;font-weight:700} button.secondary{background:#6b7280} button.green{background:#2f7d32} button.red{background:#991b1b}
-.pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#e8f1fa;color:#173958;margin:2px}.card{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--soft);margin:10px 0}.moduleCard{border-left:6px solid var(--blue)}
-.crosswalk{border:2px solid var(--navy);background:#f8fbff;border-radius:10px;padding:14px;margin:14px 0}.crosswalk h3{margin-top:0}.codeRow{display:grid;grid-template-columns:1.4fr .8fr .8fr .8fr;gap:10px;margin:10px 0;align-items:end}
-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px} th,td{border:1px solid var(--line);padding:8px;vertical-align:top} th{background:var(--navy);color:#fff}.low{background:var(--green)}.mod{background:var(--yellow)}.high{background:var(--red)}
-.noteOut{white-space:pre-wrap;border:1px solid var(--line);background:#fbfdff;padding:14px;border-radius:10px;min-height:260px;font-family:Arial,Helvetica,sans-serif}.small{font-size:12px;color:var(--muted)}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.codeRow{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}@media(max-width:560px){.grid{grid-template-columns:1fr}.codeRow{grid-template-columns:1fr}main{margin:0;border-radius:0}}
-@media print{button,.noPrint{display:none!important}body{background:white}main{box-shadow:none;margin:0}.noteOut{border:0;padding:0}.card,.crosswalk{break-inside:avoid}}
+:root{
+  --ink:#20252b;
+  --navy:#243f67;
+  --navy-soft:#8faadc;
+  --line:#7f858b;
+  --page:#ffffff;
+  --app-bg:#eef2f5;
+  --label:#d0e1d4;
+  --positive:#efe5c9;
+  --impression:#d2e2e6;
+  --low:#d9ead3;
+  --moderate:#fff1c7;
+  --high:#f4cccc;
+  --neutral:#edf0f2;
+  --focus:rgba(36,63,103,.16);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  color:var(--ink);
+  background:var(--app-bg);
+  font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+  line-height:1.42;
+}
+
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+
+.app-shell{
+  max-width:1180px;
+  margin:24px auto;
+  padding:0 16px 48px;
+}
+
+.editor-panel{
+  background:#fff;
+  border:1px solid #d8dee5;
+  border-radius:14px;
+  box-shadow:0 10px 28px rgba(33,45,61,.08);
+  margin-bottom:20px;
+  overflow:hidden;
+}
+
+.editor-panel__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 20px;
+  color:#fff;
+  background:linear-gradient(135deg,#284a77,#1f3657);
+}
+.editor-panel__header h1{
+  margin:0;
+  font-size:1.25rem;
+  letter-spacing:.01em;
+}
+.editor-panel__header p{
+  margin:4px 0 0;
+  color:#dfe8f4;
+  font-size:.9rem;
+}
+.editor-panel__body{padding:20px}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.form-grid .span-2{grid-column:span 2}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{
+  color:var(--navy);
+  font-weight:700;
+  font-size:.84rem;
+  letter-spacing:.02em;
+}
+.field input{
+  width:100%;
+  border:1px solid #bfc7d0;
+  border-radius:8px;
+  padding:10px 11px;
+  background:#fff;
+  color:var(--ink);
+}
+.field input:focus{
+  outline:3px solid var(--focus);
+  border-color:var(--navy);
+}
+
+.screen-heading{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:16px;
+  margin:24px 0 10px;
+}
+.screen-heading h2{margin:0;color:var(--navy);font-size:1.05rem}
+.screen-heading span{font-size:.8rem;color:#647180}
+
+.screen-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 168px;
+  border:1px solid #c5ccd4;
+  border-bottom:0;
+}
+.screen-question,
+.screen-controls{
+  min-height:52px;
+  border-bottom:1px solid #c5ccd4;
+  background:#fff;
+}
+.screen-question{
+  display:flex;
+  align-items:center;
+  padding:10px 12px;
+  font-weight:600;
+}
+.screen-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  padding:7px;
+  border-left:1px solid #c5ccd4;
+}
+.yn-btn{
+  border:1px solid #bac3cd;
+  border-radius:6px;
+  background:#fff;
+  font-weight:800;
+}
+.yn-btn:hover{border-color:var(--navy)}
+.yn-btn.active.no{background:var(--low);color:#28512c;border-color:#85aa84}
+.yn-btn.active.yes{background:var(--moderate);color:#6a4b00;border-color:#c9aa5f}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:18px;
+}
+.action-btn{
+  border:0;
+  border-radius:8px;
+  padding:11px 15px;
+  font-weight:800;
+}
+.action-btn.primary{background:var(--navy);color:#fff}
+.action-btn.secondary{background:#dfe7ef;color:var(--navy)}
+.action-btn.ghost{background:#fff;color:var(--navy);border:1px solid #b9c4cf}
+
+.report-page{
+  width:min(100%,1050px);
+  margin:0 auto;
+  padding:24px 28px 30px;
+  background:var(--page);
+  border:1px solid #d7dce1;
+  box-shadow:0 12px 34px rgba(25,37,50,.10);
+}
+
+.report-kicker{
+  margin:0 0 20px;
+  text-align:center;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:.98rem;
+  font-style:italic;
+  font-weight:700;
+  color:#252525;
+}
+
+.patient-grid{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  margin-bottom:30px;
+}
+.patient-grid col.label-col{width:17%}
+.patient-grid col.value-col{width:33%}
+.patient-grid th,
+.patient-grid td{
+  border:1px solid #555b60;
+  padding:7px 10px;
+  min-height:38px;
+  vertical-align:middle;
+}
+.patient-grid th{
+  background:var(--label);
+  text-align:left;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1.05rem;
+  font-weight:700;
+}
+.patient-grid td{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1.02rem;
+}
+
+.section-title{
+  margin:0 0 6px;
+  color:var(--navy);
+  font-size:1.02rem;
+  font-weight:850;
+  letter-spacing:.01em;
+}
+.executive-summary{
+  margin-bottom:22px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1rem;
+  line-height:1.48;
+}
+.executive-summary p{margin:0}
+
+.highlight-box{
+  border:1px solid #666;
+  padding:10px 12px 11px;
+  margin:0 0 22px;
+}
+.highlight-box.positive{background:var(--positive)}
+.highlight-box.impression{background:var(--impression)}
+.highlight-box h2{
+  margin:0 0 4px;
+  color:var(--navy);
+  font-size:.98rem;
+  font-weight:850;
+}
+.highlight-box ul{
+  margin:0;
+  padding-left:18px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1rem;
+}
+.highlight-box li{margin:1px 0}
+.highlight-box p{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1rem;
+}
+.risk-emphasis{font-weight:900;letter-spacing:.025em}
+
+.matrix-section{margin-top:28px}
+.risk-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:.93rem;
+}
+.risk-table col.domain{width:30%}
+.risk-table col.finding{width:15%}
+.risk-table col.status{width:14%}
+.risk-table col.risk{width:14%}
+.risk-table col.plan{width:27%}
+.risk-table th,
+.risk-table td{
+  border:1px solid #555b60;
+  padding:7px 8px;
+  text-align:left;
+  vertical-align:top;
+  overflow-wrap:anywhere;
+}
+.risk-table thead th{
+  background:var(--navy-soft);
+  color:#151a1f;
+  font-weight:800;
+}
+.cell-positive{background:var(--moderate)}
+.cell-negative{background:var(--low)}
+.cell-moderate{background:var(--moderate)}
+.cell-high{background:var(--high)}
+.cell-low{background:var(--low)}
+.cell-neutral{background:var(--neutral)}
+
+.report-footer{
+  margin-top:38px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:18px;
+  align-items:end;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:.98rem;
+}
+.signature-block{line-height:1.9}
+.signature-label{font-weight:700}
+.footer-date{min-width:220px}
+
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+@media(max-width:850px){
+  .form-grid{grid-template-columns:1fr 1fr}
+  .form-grid .span-2{grid-column:span 2}
+  .report-page{padding:20px 16px 24px}
+  .risk-table{font-size:.84rem}
+}
+
+@media(max-width:620px){
+  .app-shell{padding:0 8px 30px;margin:8px auto}
+  .editor-panel__header{align-items:flex-start;flex-direction:column}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid .span-2{grid-column:auto}
+  .screen-grid{grid-template-columns:1fr}
+  .screen-controls{border-left:0}
+  .patient-grid col.label-col{width:22%}
+  .patient-grid col.value-col{width:28%}
+  .patient-grid th,.patient-grid td{padding:6px;font-size:.88rem}
+  .risk-table{display:block;overflow-x:auto;white-space:normal}
+  .risk-table table{min-width:720px}
+  .report-footer{grid-template-columns:1fr}
+}
+
+@media print{
+  @page{size:letter;margin:.45in}
+  body{background:#fff}
+  .app-shell{max-width:none;margin:0;padding:0}
+  .editor-panel{display:none!important}
+  .report-page{
+    width:100%;
+    margin:0;
+    padding:0;
+    border:0;
+    box-shadow:none;
+  }
+  .report-kicker{margin-bottom:14px}
+  .patient-grid{margin-bottom:22px}
+  .executive-summary{margin-bottom:16px}
+  .highlight-box{margin-bottom:16px}
+  .matrix-section{margin-top:18px}
+  .risk-table{font-size:9.2pt}
+  .risk-table th,.risk-table td{padding:5px 6px}
+  .report-footer{margin-top:28px}
+}
 </style>
 </head>
 <body>
-<header>
-<h1>ARNP DSM-5 / ICD-10 Telemedicine Modular Progress Note Tool</h1>
-<p>Standalone local HTML software. No installation. Clean DSM-5 / ICD-10 / ICD-11 wording. No internal date/file-code labels.</p>
-</header>
-<main>
-<section>
-<h2>Patient / Visit Information</h2>
-<div class="grid">
-<div><label>Patient Name<input id="patientName" value="John Doe"></label></div>
-<div><label>Date of Birth<input id="dob" type="date" value="1960-02-22"></label></div>
-<div><label>ID / MRN<input id="mrn" value="12345"></label></div>
-<div><label>Date of Service<input id="dos" type="date"></label></div>
-<div><label>Provider Name<input id="provider" value="DR G, ARNP"></label></div>
-<div><label>Visit Type<select id="visitType"><option>Telemedicine</option><option>In-Person</option><option>Hybrid</option></select></label></div>
-<div><label>Time<input id="time" value="2:00 PM – 3:00 PM"></label></div>
-<div><label>Telehealth Consent<select id="consent"><option>Obtained and documented</option><option>Not obtained</option><option>Not applicable</option></select></label></div>
-<div><label>Patient Location<input id="patientLocation" value="Office"></label></div>
-<div><label>Provider Location<input id="providerLocation" value="Office"></label></div>
-<div><label>Emergency Contact<input id="emergency" value="Not Available"></label></div>
-<div><label>Note Status<select id="noteStatus"><option>Draft</option><option>Final</option><option>Addendum</option></select></label></div>
-</div>
-</section>
+<div class="app-shell">
+  <section class="editor-panel" aria-label="Clinical screening editor">
+    <div class="editor-panel__header">
+      <div>
+        <h1>20Q Clinical Screening Assessment</h1>
+        <p>Complete the fields below; the ARNP note updates automatically.</p>
+      </div>
+      <strong id="editorRiskBadge">LOW RISK</strong>
+    </div>
 
-<section>
-<h2>Phase 1: Differential Screener</h2>
-<div class="notice warning"><b>Locked workflow:</b> Enter chief complaint and screener positives first. Select no more than 3 modules for detailed documentation. This tool is a documentation aid and does not independently diagnose.</div>
-<div class="grid2">
-<div><label>Chief Complaint / Presentation<textarea id="chief" class="largeText">Depression and anxiety.</textarea></label></div>
-<div><label>Clinical Context / Duration / Rule-Outs<textarea id="context" class="largeText">Symptoms present for approximately four weeks. Review duration, impairment, medical/substance contributors, safety, mania, psychosis, and collateral records as clinically indicated.</textarea></label></div>
-</div>
-<h3>Cross-Cutting Screener</h3>
-<div id="screener"></div>
-<div class="noPrint"><button onclick="scoreScreener()">Score Differential Screener</button><button class="secondary" onclick="clearScreener()">Clear Screener</button></div>
-<div id="screenSummary"></div>
-</section>
+    <div class="editor-panel__body">
+      <div class="form-grid">
+        <div class="field span-2">
+          <label for="patientName">Patient</label>
+          <input id="patientName" type="text" autocomplete="name" placeholder="Patient name or initials" />
+        </div>
+        <div class="field">
+          <label for="dob">DOB</label>
+          <input id="dob" type="date" />
+        </div>
+        <div class="field">
+          <label for="mrn">MRN / Patient ID</label>
+          <input id="mrn" type="text" placeholder="Optional" />
+        </div>
+        <div class="field span-2">
+          <label for="arnpName">ARNP</label>
+          <input id="arnpName" type="text" placeholder="Full name and credentials" />
+        </div>
+        <div class="field">
+          <label for="dos">DOS</label>
+          <input id="dos" type="date" />
+        </div>
+        <div class="field">
+          <label for="signTime">Time</label>
+          <input id="signTime" type="time" />
+        </div>
+      </div>
 
-<section>
-<h2>Phase 2: Locked Modular Assessment</h2>
-<p class="small">Select no more than 3 modules. The workspace below will show only selected modules.</p>
-<div class="grid">
-<label><input type="checkbox" class="modulePick" value="Depression" checked> Depression</label>
-<label><input type="checkbox" class="modulePick" value="Anxiety" checked> Anxiety</label>
-<label><input type="checkbox" class="modulePick" value="Panic Disorder"> Panic Disorder</label>
-<label><input type="checkbox" class="modulePick" value="PTSD"> PTSD</label>
-<label><input type="checkbox" class="modulePick" value="Bipolar Disorder"> Bipolar Disorder</label>
-<label><input type="checkbox" class="modulePick" value="ADHD"> ADHD</label>
-<label><input type="checkbox" class="modulePick" value="Eating Disorder"> Eating Disorder</label>
-<label><input type="checkbox" class="modulePick" value="Neurocognitive"> Neurocognitive</label>
-<label><input type="checkbox" class="modulePick" value="Substance Use"> Substance Use</label>
-</div>
-<div class="noPrint"><button onclick="renderModules()">Load Selected Module(s)</button></div>
-<div id="moduleWorkspace"></div>
-</section>
+      <div class="screen-heading">
+        <h2>Screening Responses</h2>
+        <span>Default response: No</span>
+      </div>
+      <div id="screenGrid" class="screen-grid"></div>
 
-<section class="crosswalk">
-<h2>DSM-5 / ICD-10 / ICD-11 Diagnostic Mapping</h2>
-<p class="small">Editable diagnostic crosswalk. DSM numeric identifiers are included for documentation cross-reference; billing generally relies on ICD-10-CM/ICD codes.</p>
-<div id="crosswalkRows"></div>
-<div class="noPrint"><button onclick="addBlankDx()">Add Diagnosis Row</button></div>
-</section>
+      <div class="actions">
+        <button class="action-btn primary" type="button" onclick="window.print()">Print / Save PDF</button>
+        <button class="action-btn secondary" type="button" onclick="copyClinicalSummary()">Copy Clinical Summary</button>
+        <button id="ButtonSave" class="action-btn secondary" type="button">Save</button>
+        <button class="action-btn ghost" type="button" onclick="resetScreening()">Reset Responses</button>
+        
+      </div>
+    </div>
+  </section>
 
-<section>
-<h2>E-Signature / Printed Name</h2>
-<div class="notice"><b>Provider attestation:</b> ARNP/Doctor may print their name below for the generated note and then print/sign as required by policy.</div>
-<div class="grid2">
-<div><label>ARNP / Doctor Printed Name<input id="signatureName" placeholder="Type ARNP/Doctor printed name"></label></div>
-<div><label>Signature Date<input id="signatureDate" type="date"></label></div>
-</div>
-</section>
+  <article class="report-page" id="reportPage" aria-labelledby="reportTitle">
+    <h1 class="report-kicker" id="reportTitle">Clinical Screening Assessment • ARNP NOTE</h1>
 
-<section>
-<h2>Phase 3: Generate Progress Note</h2>
-<div class="noPrint">
-<button class="green" onclick="generateNote()">Generate SOAP Progress Note</button>
-<button class="secondary" onclick="copyNote()">Copy Note</button>
-<button class="secondary" onclick="window.print()">Print / Save as PDF</button>
+    <table class="patient-grid" aria-label="Patient and clinician information">
+      <colgroup>
+        <col class="label-col" /><col class="value-col" />
+        <col class="label-col" /><col class="value-col" />
+      </colgroup>
+      <tbody>
+        <tr>
+          <th scope="row">Patient</th>
+          <td id="reportPatient">—</td>
+          <th scope="row">DOB</th>
+          <td id="reportDob">—</td>
+        </tr>
+        <tr>
+          <th scope="row">ARNP</th>
+          <td id="reportArnp">—</td>
+          <th scope="row">DOS</th>
+          <td id="reportDos">—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <section class="executive-summary" aria-labelledby="executiveHeading">
+      <h2 class="section-title" id="executiveHeading">EXECUTIVE CLINICAL SUMMARY</h2>
+      <p id="executiveSummary"></p>
+    </section>
+
+    <section class="highlight-box positive" aria-labelledby="positiveHeading">
+      <h2 id="positiveHeading">KEY POSITIVE FINDINGS</h2>
+      <ul id="positiveFindings"></ul>
+    </section>
+
+    <section class="highlight-box impression" aria-labelledby="impressionHeading">
+      <h2 id="impressionHeading">CLINICAL IMPRESSION</h2>
+      <p>Overall behavioral health screening risk: <span class="risk-emphasis" id="impressionRisk">LOW</span>.</p>
+      <p id="impressionText">No acute positive behavioral health symptoms were identified during this screening.</p>
+    </section>
+
+    <section class="matrix-section" aria-labelledby="matrixHeading">
+      <h2 class="section-title" id="matrixHeading">COLOR-CODED RISK MATRIX</h2>
+      <table class="risk-table" aria-label="Color-coded risk matrix">
+        <colgroup>
+          <col class="domain" /><col class="finding" /><col class="status" /><col class="risk" /><col class="plan" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Domain</th>
+            <th scope="col">Finding</th>
+            <th scope="col">Status</th>
+            <th scope="col">Risk</th>
+            <th scope="col">Plan</th>
+          </tr>
+        </thead>
+        <tbody id="riskMatrixBody"></tbody>
+      </table>
+    </section>
+
+    <footer class="report-footer">
+      <div class="signature-block">
+        <div><span class="signature-label">ARNP Signature:</span> _____________________________</div>
+        <div><span class="signature-label">Date:</span> ____________________</div>
+      </div>
+      <div class="footer-date" id="electronicAttestation"></div>
+    </footer>
+  </article>
 </div>
-<div id="note" class="noteOut">Click “Generate SOAP Progress Note.”</div>
-</section>
-</main>
+
+<textarea id="clipboardText" class="sr-only" aria-hidden="true"></textarea>
+
 <script>
-const today=new Date().toISOString().slice(0,10);document.getElementById('dos').value=today;document.getElementById('signatureDate').value=today;
-const screenQuestions=[
-['Depression','Little interest or pleasure in doing things?'],['Depression','Feeling down, depressed, or hopeless?'],
-['Anxiety','Feeling nervous, anxious, or on edge?'],['Anxiety','Worrying about many different things?'],['Panic Disorder','Sudden anxiety/panic attack?'],
-['Substance Use','Thought patient should cut down on alcohol/drugs?'],['Substance Use','Anyone complained about drinking or drug use?'],
-['Psychosis','Feeling others are against/following/trying to harm patient?'],['Psychosis','Hearing voices/sounds others did not hear?'],
-['Bipolar Spectrum','More self-confident than usual?'],['Bipolar Spectrum','Needed less sleep than usual and felt rested?'],['Eating Disorder','Eating felt out of control?'],
-['Somatic','Multiple physical symptoms causing distress?'],['Neurocognitive','Memory or learning problems beyond expected?'],
-['ADHD','Last 6 months: Easily distracted by extraneous stimuli?'],
-['ADHD','Last 6 months: Difficulty following through on instructions, not due to oppositional behavior or comprehension failure?'],
-['ADHD','Last 6 months: Difficulty sustaining attention in tasks or play at work or home activities?']
+const screenQuestions = [
+  ['q1','Frequently felt down, depressed, or hopeless?'],
+  ['q2','Little interest or pleasure in doing things?'],
+  ['q3','Feeling nervous, anxious, frightened, worried, or on edge?'],
+  ['q4','Difficult to control or stop worrying?'],
+  ['q5','Sudden episodes of intense fear or panic?'],
+  ['q6','Used alcohol or drugs more than intended?'],
+  ['q7','Alcohol/drug use caused problems at home, work, school, or relationships?'],
+  ['q8','Heard voices or sounds others could not hear?'],
+  ['q9','Believed others were trying to harm/control without evidence?'],
+  ['q10','Seen things that others could not see?'],
+  ['q11','Unusually energetic or needed much less sleep?'],
+  ['q12','So excited/confident others thought not usual self?'],
+  ['q13','Thoughts raced so quickly they were hard to control?'],
+  ['q14','Excessively concerned about weight, eating, or body shape?'],
+  ['q15','Bothered by unexplained physical pain?'],
+  ['q16','Persistent fatigue/low energy without clear medical cause?'],
+  ['q17','Physical symptoms significantly interfered with daily activities?'],
+  ['q18','Difficulty paying attention or staying focused?'],
+  ['q19','Trouble organizing tasks or completing them?'],
+  ['q20','Act impulsively or difficulty sitting still?']
 ];
-const defaultDx={
-'Depression':{dx:'Major Depressive Disorder, Single Episode',dsm:'296.20–296.26',icd10:'F32.9 / severity-specific F32.x',icd11:'6A70'},
-'Anxiety':{dx:'Generalized Anxiety Disorder',dsm:'300.02',icd10:'F41.1',icd11:'6B00'},
-'Panic Disorder':{dx:'Panic Disorder',dsm:'300.01',icd10:'F41.0',icd11:'6B01'},
-'PTSD':{dx:'Posttraumatic Stress Disorder',dsm:'309.81',icd10:'F43.10',icd11:'6B40'},
-'ADHD':{dx:'ADHD, Combined / Predominantly Inattentive Presentation',dsm:'314.01 (Combined) / 314.00 (Inattentive)',icd10:'F90.2 / F90.0',icd11:'6A05.2 / 6A05.0'},
-'Bipolar Disorder':{dx:'Bipolar Disorder (Bipolar Spectrum)',dsm:'296.80',icd10:'F31.9',icd11:'6A6Z'},
-'Eating Disorder':{dx:'Eating Disorder Differential: Anorexia Nervosa, Bulimia Nervosa, or Binge Eating Disorder',dsm:'307.1 / 307.51',icd10:'F50.01 / F50.2 / F50.81',icd11:'6B80 / 6B81 / 6B82'},
-'Neurocognitive':{dx:'Mild or Major Neurocognitive Disorder',dsm:'331.83 / 294.20 / 294.21',icd10:'G31.84 / F03.90',icd11:'6D71 / 6D80-6D8Z'},
-'Substance Use':{dx:'Substance Use Disorder, specify substance and severity',dsm:'DSM-5 substance-specific code',icd10:'F10-F19 series',icd11:'6C40-6C4Z series'}
-};
-function el(id){return document.getElementById(id)} function val(id){return el(id)?.value||''}
-function renderScreener(){el('screener').innerHTML=screenQuestions.map((q,i)=>`<div class="card"><b>${i+1}. [${q[0]}]</b> ${q[1]}<br><select id="sq${i}"><option></option><option>Yes</option><option>No</option><option>Unknown</option></select></div>`).join('')}
-function clearScreener(){screenQuestions.forEach((_,i)=>el('sq'+i).value='');scoreScreener()}
-function scoreScreener(){let counts={};screenQuestions.forEach((q,i)=>{if(el('sq'+i).value==='Yes')counts[q[0]]=(counts[q[0]]||0)+1});let rows=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(k=>`<tr class="${counts[k]>=2?'high':'mod'}"><td>${k}</td><td>${counts[k]}</td><td>${counts[k]>=2?'High Clinical Indicator':'Further Evaluation Needed'}</td><td>${suggestDx(k)}</td></tr>`).join('')||'<tr class="low"><td colspan="4">No positive screen items recorded.</td></tr>';el('screenSummary').innerHTML=`<h3>Differential Screener Results</h3><table><tr><th>Domain</th><th>Positive Count</th><th>Indicator</th><th>Potential Differential</th></tr>${rows}</table>`}
-function suggestDx(k){return k==='Bipolar Spectrum'?'Bipolar Disorder or other mood disorder differential':(defaultDx[k]?.dx||k+' differential')}
-function selectedModules(){let picks=[...document.querySelectorAll('.modulePick:checked')].map(x=>x.value);if(picks.length>3){alert('Locked workflow allows no more than 3 modules at a time. The first 3 selected modules will be used.');picks=picks.slice(0,3);document.querySelectorAll('.modulePick').forEach(x=>x.checked=picks.includes(x.value))}return picks}
-function renderModules(){let picks=selectedModules();el('moduleWorkspace').innerHTML=picks.map(m=>`<div class="card moduleCard"><h3>${m} Module</h3><div class="grid2"><label>Clinical Observations<textarea id="${safe(m)}_obs"></textarea></label><label>Patient Statements<textarea id="${safe(m)}_stmt"></textarea></label><label>Mental Status Examination<textarea id="${safe(m)}_mse"></textarea></label><label>Duration / Functional Impairment<textarea id="${safe(m)}_imp"></textarea></label><label>Safety / Risk / Rule-Outs<textarea id="${safe(m)}_risk"></textarea></label><label>Final Impression<textarea id="${safe(m)}_final">${defaultDx[m]?.dx||''}</textarea></label></div></div>`).join('')||'<div class="notice danger">Select up to 3 modules.</div>';renderCrosswalk()}
-function safe(s){return s.replace(/[^a-z0-9]/gi,'_')}
-function renderCrosswalk(){let picks=selectedModules();let rows=picks.map((m,i)=>dxRow(defaultDx[m]||{dx:m,dsm:'',icd10:'',icd11:''},i)).join('');el('crosswalkRows').innerHTML=rows||''}
-function dxRow(d,i){return `<div class="codeRow"><label>Diagnosis<input class="dxName" value="${d.dx||''}"></label><label>DSM-5 Code<input class="dsmCode" value="${d.dsm||''}"></label><label>ICD-10-CM<input class="icd10" value="${d.icd10||''}"></label><label>ICD-11<input class="icd11" value="${d.icd11||''}"></label></div>`}
-function addBlankDx(){el('crosswalkRows').insertAdjacentHTML('beforeend',dxRow({dx:'',dsm:'',icd10:'',icd11:''},99))}
-function dxText(){return [...document.querySelectorAll('.codeRow')].map(r=>{let dx=r.querySelector('.dxName').value, dsm=r.querySelector('.dsmCode').value, i10=r.querySelector('.icd10').value, i11=r.querySelector('.icd11').value;return `${dx}\nDSM-5 Code: ${dsm}\nICD-10-CM: ${i10}\nICD-11: ${i11}`}).filter(x=>x.trim()).join('\n\n')}
-function moduleText(){let picks=selectedModules();return picks.map(m=>{let s=safe(m);return `${m} Module\nClinical Observations: ${val(s+'_obs')||'Not documented'}\nPatient Statements: ${val(s+'_stmt')||'Not documented'}\nMental Status Examination: ${val(s+'_mse')||'Not documented'}\nDuration/Functional Impairment: ${val(s+'_imp')||'Not documented'}\nSafety/Risk/Rule-Outs: ${val(s+'_risk')||'Not documented'}\nFinal Impression: ${val(s+'_final')||'Not finalized'}`}).join('\n\n')}
-function generateNote(){scoreScreener();let note=`TELEMEDICINE PSYCHIATRIC PROGRESS NOTE\n\nPATIENT INFORMATION\nPatient: ${val('patientName')}\nDOB: ${val('dob')}\nID/MRN: ${val('mrn')}\nDate of Service: ${val('dos')}\nProvider: ${val('provider')}\nVisit Type: ${val('visitType')}\nTime: ${val('time')}\nPatient Location: ${val('patientLocation')}\nProvider Location: ${val('providerLocation')}\nTelehealth Consent: ${val('consent')}\nEmergency Contact: ${val('emergency')}\nNote Status: ${val('noteStatus')}\n\nSUBJECTIVE\nChief Complaint / Presentation:\n${val('chief')}\n\nClinical Context / History / Rule-Outs:\n${val('context')}\n\nOBJECTIVE\nTelemedicine observations and mental status findings are documented within the selected locked modules below.\n\nSELECTED LOCKED MODULE FINDINGS\n${moduleText()}\n\nDSM-5 / ICD-10 / ICD-11 DIAGNOSTIC MAPPING\n${dxText()}\n\nASSESSMENT\nDifferential diagnosis was reviewed using a locked modular workflow. Diagnoses remain clinical impressions unless finalized by the ARNP after full DSM-5 criteria review, symptom duration assessment, functional impairment assessment, safety evaluation, substance/medical rule-outs, and collateral/records review as indicated.\n\nPLAN\n- Reviewed symptoms, functional impairment, and safety/risk considerations.\n- Complete or update safety plan/disposition if suicidal ideation, homicidal ideation, psychosis, mania, intoxication/withdrawal, or grave disability is present.\n- Consider medical/substance contributors and coordinate labs, records, and collateral information as clinically indicated.\n- Treatment recommendations, medication decisions, psychotherapy/referrals, and follow-up interval to be finalized by the ARNP.\n\nARNP / Doctor Printed Name: ${val('signatureName')||val('provider')}
-ARNP / Doctor Signature: ____________________________
-Signature Date: ${val('signatureDate')||val('dos')}`;el('note').innerText=note}
-function copyNote(){generateNote();navigator.clipboard.writeText(el('note').innerText).then(()=>alert('Clinical note copied.'))}
-renderScreener();renderModules();
+
+const domainDefinitions = [
+  {
+    key:'depression', label:'Depression', ids:['q1','q2'],
+    positivePlan:'Assess DSM-5 depressive symptoms, functional impairment, and safety, including a direct suicide risk assessment.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'anxiety', label:'Anxiety', ids:['q3','q4'],
+    positivePlan:'Evaluate anxiety disorders, severity, triggers, and functional impact.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'panic', label:'Panic Disorder', ids:['q5'],
+    positivePlan:'Evaluate panic attack frequency, triggers, avoidance behavior, and rule out medical/cardiac causes.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'substance', label:'Substance Use', ids:['q6','q7'],
+    positivePlan:'Clarify pattern, consequences, withdrawal risk, and treatment needs.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'psychosis', label:'Psychosis / Suspiciousness', ids:['q8','q9','q10'],
+    positivePlan:'Complete urgent diagnostic and safety assessment.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'bipolar', label:'Bipolar / Mania', ids:['q11','q12','q13'],
+    positivePlan:'Assess episodic mood elevation, sleep need, impairment, and medication effects.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'eating', label:'Eating / Body Image', ids:['q14'],
+    positivePlan:'Assess eating-disorder symptoms, medical risk, and nutritional status.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'somatic', label:'Somatic / Medical Symptoms', ids:['q15','q16','q17'],
+    positivePlan:'Evaluate medical contributors, functional impairment, and need for further workup or referral.',
+    negativePlan:'Routine monitoring.'
+  },
+  {
+    key:'adhd', label:'ADHD / Attention', ids:['q18','q19','q20'],
+    positivePlan:'Assess ADHD/executive function symptoms, onset, and functional impairment.',
+    negativePlan:'Routine monitoring.'
+  }
+];
+
+const responses = Object.fromEntries(screenQuestions.map(([id]) => [id,'No']));
+
+function isYes(id){return responses[id] === 'Yes';}
+function countPositive(ids){return ids.filter(isYes).length;}
+function formatDate(value){
+  if(!value) return '—';
+  const [year,month,day] = value.split('-');
+  return `${month}/${day}/${year}`;
+}
+function valueOrDash(id){
+  const value = document.getElementById(id).value.trim();
+  return value || '—';
+}
+function findingCode(ids){
+  return ids.map(id => `${id.toUpperCase()}${isYes(id) ? '+' : '−'}`).join(', ');
+}
+
+function buildScreen(){
+  const grid = document.getElementById('screenGrid');
+  grid.innerHTML = '';
+  screenQuestions.forEach(([id,text],index) => {
+    const question = document.createElement('div');
+    question.className = 'screen-question';
+    question.textContent = `Q${index+1}: ${text}`;
+
+    const controls = document.createElement('div');
+    controls.className = 'screen-controls';
+    controls.innerHTML = `
+      <button class="yn-btn active no" type="button" data-id="${id}" data-value="No" aria-pressed="true">No</button>
+      <button class="yn-btn yes" type="button" data-id="${id}" data-value="Yes" aria-pressed="false">Yes</button>`;
+
+    grid.append(question,controls);
+  });
+
+  grid.addEventListener('click',event => {
+    const button = event.target.closest('.yn-btn');
+    if(!button) return;
+    const {id,value} = button.dataset;
+    responses[id] = value;
+    button.parentElement.querySelectorAll('.yn-btn').forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed','false');
+    });
+    button.classList.add('active');
+    button.setAttribute('aria-pressed','true');
+    updateReport();
+  });
+}
+
+function overallRisk(){
+  const highRisk = isYes('q5') || isYes('q8') || isYes('q9') || isYes('q10') ||
+    (isYes('q11') && isYes('q12') && isYes('q13'));
+  if(highRisk) return 'HIGH';
+  if(Object.values(responses).includes('Yes')) return 'MODERATE';
+  return 'LOW';
+}
+
+function domainResult(domain){
+  const positives = countPositive(domain.ids);
+  let status = positives ? 'Positive' : 'Negative';
+  let risk = positives ? 'Moderate' : 'Low';
+
+  if(domain.key === 'psychosis' && positives) risk = 'High';
+  if(domain.key === 'panic' && positives) risk = 'High';
+  if(domain.key === 'bipolar' && isYes('q11') && isYes('q12') && isYes('q13')) risk = 'High';
+
+  return {
+    ...domain,
+    positives,
+    status,
+    risk,
+    finding:findingCode(domain.ids),
+    plan:status === 'Positive' ? domain.positivePlan : domain.negativePlan
+  };
+}
+
+function humanList(items){
+  if(items.length === 0) return '';
+  if(items.length === 1) return items[0];
+  if(items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0,-1).join(', ')}, and ${items.at(-1)}`;
+}
+
+function positiveFindingLabels(results){
+  const labels = [];
+  results.forEach(result => {
+    if(result.status !== 'Positive') return;
+    labels.push(`${result.risk} ${result.label}`);
+  });
+  return labels;
+}
+
+function makeExecutiveSummary(results,risk){
+  const positive = results.filter(r => r.status === 'Positive').map(r => r.label.toLowerCase());
+  const negative = results.filter(r => r.status === 'Negative').map(r => r.label.toLowerCase());
+
+  if(positive.length === 0){
+    return `Behavioral health screening did not identify positive symptom domains during this assessment. The overall screening risk is Low. Continued routine clinical monitoring and reassessment are appropriate based on symptoms, functional changes, and clinical judgment.`;
+  }
+
+  const highRiskDomains = results.filter(r => r.status === 'Positive' && r.risk === 'High').map(r => r.label.toLowerCase());
+  const riskSentence = highRiskDomains.length
+    ? `Positive high-risk findings in ${humanList(highRiskDomains)} warrant prompt diagnostic and safety evaluation, including direct assessment of suicide risk.`
+    : 'No high-risk domains were identified; findings warrant routine diagnostic follow-up, including direct assessment of suicide risk as part of standard care.';
+
+  const negativeSentence = negative.length
+    ? `Negative screens included ${humanList(negative)}.`
+    : 'No screened domains were negative.';
+
+  return `Behavioral health screening demonstrated positive findings for ${humanList(positive)}. ${riskSentence} ${negativeSentence} Overall screening risk is ${risk.charAt(0)+risk.slice(1).toLowerCase()}. ARNP follow-up should include diagnostic assessment, evaluation of functional impairment, medical and medication contributors, safety assessment, and evidence-based treatment planning.`;
+}
+
+function renderRiskMatrix(results){
+  const tbody = document.getElementById('riskMatrixBody');
+  tbody.innerHTML = '';
+
+  results.forEach(result => {
+    const row = document.createElement('tr');
+    const statusClass = result.status === 'Positive' ? 'cell-positive' : 'cell-negative';
+    const riskClass = `cell-${result.risk.toLowerCase()}`;
+    row.innerHTML = `
+      <td>${result.label}</td>
+      <td>${result.finding}</td>
+      <td class="${statusClass}">${result.status}</td>
+      <td class="${riskClass}">${result.risk}</td>
+      <td>${result.plan}</td>`;
+    tbody.appendChild(row);
+  });
+}
+
+function updateReport(){
+  const results = domainDefinitions.map(domainResult);
+  const risk = overallRisk();
+
+  document.getElementById('reportPatient').textContent = valueOrDash('patientName');
+  document.getElementById('reportDob').textContent = formatDate(document.getElementById('dob').value);
+  document.getElementById('reportArnp').textContent = valueOrDash('arnpName');
+  document.getElementById('reportDos').textContent = formatDate(document.getElementById('dos').value);
+
+  document.getElementById('executiveSummary').textContent = makeExecutiveSummary(results,risk);
+  document.getElementById('impressionRisk').textContent = risk;
+  document.getElementById('editorRiskBadge').textContent = `${risk} RISK`;
+  document.getElementById('impressionText').textContent = risk === 'LOW'
+    ? 'No acute positive behavioral health symptoms were identified during this screening.'
+    : risk === 'MODERATE'
+      ? 'Screening results require clinical correlation and diagnostic evaluation.'
+      : 'Prompt diagnostic and safety evaluation is indicated based on the positive high-risk screen.';
+
+  const findings = positiveFindingLabels(results);
+  const list = document.getElementById('positiveFindings');
+  list.innerHTML = '';
+  findings.forEach(text => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    list.appendChild(li);
+  });
+
+  renderRiskMatrix(results);
+
+  const clinician = valueOrDash('arnpName');
+  const dos = formatDate(document.getElementById('dos').value);
+  const time = document.getElementById('signTime').value || '—';
+  document.getElementById('electronicAttestation').textContent = clinician === '—'
+    ? ''
+    : `Prepared by ${clinician} • ${dos} ${time}`;
+
+  document.getElementById('clipboardText').value = buildClipboardReport(results,risk);
+}
+
+function buildClipboardReport(results,risk){
+  const findings = positiveFindingLabels(results).map(item => `• ${item}`).join('\n');
+  const matrix = results.map(r => `${r.label}: ${r.finding} | ${r.status} | ${r.risk} | ${r.plan}`).join('\n');
+  return `CLINICAL SCREENING ASSESSMENT • ARNP NOTE\n\nPatient: ${valueOrDash('patientName')}\nDOB: ${formatDate(document.getElementById('dob').value)}\nARNP: ${valueOrDash('arnpName')}\nDOS: ${formatDate(document.getElementById('dos').value)}\nMRN: ${valueOrDash('mrn')}\n\nEXECUTIVE CLINICAL SUMMARY\n${makeExecutiveSummary(results,risk)}\n\nKEY POSITIVE FINDINGS\n${findings}\n\nCLINICAL IMPRESSION\nOverall behavioral health screening risk: ${risk}.\n${document.getElementById('impressionText').textContent}\n\nCOLOR-CODED RISK MATRIX\n${matrix}`;
+}
+
+async function copyClinicalSummary(){
+  updateReport();
+  const text = document.getElementById('clipboardText').value;
+  try{
+    await navigator.clipboard.writeText(text);
+    alert('Clinical report copied to clipboard.');
+  }catch(error){
+    const area = document.getElementById('clipboardText');
+    area.classList.remove('sr-only');
+    area.select();
+    document.execCommand('copy');
+    area.classList.add('sr-only');
+    alert('Clinical report copied to clipboard.');
+  }
+}
+
+function resetScreening(){
+  screenQuestions.forEach(([id]) => responses[id] = 'No');
+  document.querySelectorAll('.screen-controls').forEach(group => {
+    const noButton = group.querySelector('[data-value="No"]');
+    const yesButton = group.querySelector('[data-value="Yes"]');
+    noButton.classList.add('active');
+    noButton.setAttribute('aria-pressed','true');
+    yesButton.classList.remove('active');
+    yesButton.setAttribute('aria-pressed','false');
+  });
+  updateReport();
+}
+
+['patientName','dob','mrn','arnpName','dos','signTime'].forEach(id => {
+  document.getElementById(id).addEventListener('input',updateReport);
+  document.getElementById(id).addEventListener('change',updateReport);
+});
+
+(function setDefaults(){
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset()*60000);
+  document.getElementById('dos').value = local.toISOString().slice(0,10);
+  document.getElementById('signTime').value = now.toTimeString().slice(0,5);
+})();
+
+document.getElementById("ButtonSave").addEventListener("click", () => {
+  const patientName = document.getElementById("patientName").value;
+  const dob = document.getElementById("dob").value;
+  const mrn = document.getElementById("mrn").value;
+  const dos = document.getElementById("dos").value;
+  const program = "Prescreener";
+  const formDataJson = JSON.stringify(responses);
+  const generatedNote = document.getElementById("executiveSummary").textContent;
+  const providerName = document.getElementById("arnpName").value;
+  
+  window.parent.postMessage({
+    patientName,
+    dob,
+    mrn,
+    dos,
+    program,
+    formDataJson,
+    generatedNote,
+    providerName
+  }, "*");
+});
+
+buildScreen();
+updateReport();
 </script>
 </body>
 </html>
