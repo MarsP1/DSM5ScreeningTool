@@ -1,4 +1,4 @@
-import BackArrow from "../Components/BackArrow.jsx";
+import InterfacePanel from "../Components/InterfacePanel.jsx";
 import { useEffect } from "react";
 import { Screenings, addPatient, findPatient, screeningRecords, settings } from "../ScreeningsDB";
 
@@ -31,14 +31,16 @@ function Screener() {
             window.removeEventListener("message", receive);
           };
     }, []);
-    
+
   return (
-    <div>
-      <iframe 
-        src="/Screening.html" 
-        className="Screener"  
-      />
-      <BackArrow/>
+    <div className="page">
+      <InterfacePanel/>
+      <div className="pageContent">
+        <iframe 
+          src="/Screening.html" 
+          className="Screener"  
+        />
+      </div>
       
     </div>
   );

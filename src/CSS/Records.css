@@ -1,0 +1,92 @@
+.recordsPage {
+    width: 100%;
+    min-height: 100vh;
+
+    background: white;
+    color: black;
+
+    overflow-y: auto;
+}
+
+.recordsContent {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    height: 100%;
+}
+
+.patientSearch {
+    position: absolute;
+    right: 8.28vh;
+    
+    width: 20vh;
+    height: 2.4vh;
+    padding: 0 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
+    font-size: 13px;
+    font-size: 2vh;
+    font-size: 1vh;
+
+    outline: 0.06rem solid;
+}
+
+.patientSearch:focus {
+    border-color: #666;
+}
+
+.tableContainer {
+    width: 90%;
+    margin: 3vh auto;
+
+}
+
+.table {
+    width: 100%;
+
+    border-collapse: collapse;
+    border: 0.2vh solid black;
+
+    background: white;
+}
+
+.table th {
+    border: 3px solid black;
+    padding: 20px;
+
+    background: lightgray;
+    color: black;
+    
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.table td {
+    border: 3px solid black;
+    padding: 20px;
+
+    color: black;
+    background: white;
+
+    font-size: 24px;
+}
+
+.tableData tr {
+    height: 70px;
+}
+
+.tableData tr:nth-child(even) td {
+    background: #eeeeee;
+}
+
+.patientLink {
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+}
+
+
+

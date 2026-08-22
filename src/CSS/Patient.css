@@ -1,0 +1,224 @@
+.patientPage {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.patientContainer {
+    width: 100%;
+    margin-left: 18.3vh;
+    padding: 40px;
+}
+
+
+/* -------------------------
+   Patient Information
+------------------------- */
+
+.basicInfo {
+    background-color: white;
+    padding: 25px 30px;
+    margin-bottom: 30px;
+
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    border-left: 5px solid #243f67;
+}
+
+.basicInfo h1 {
+    margin: 0 0 15px;
+    color: #243f67;
+    font-size: 28px;
+}
+
+.basicInfo div {
+    margin-top: 6px;
+    font-size: 16px;
+}
+
+
+/* -------------------------
+   Screenings
+------------------------- */
+
+.ScreeningInfo {
+    width: 100%;
+}
+
+.ScreeningInfo h2 {
+    color: #243f67;
+    margin-bottom: 15px;
+}
+
+
+/* Individual dropdown */
+
+.screeningRecord {
+    background-color: white;
+
+    margin-bottom: 15px;
+
+    border: 1px solid #d8dee5;
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+
+/* Clickable header */
+
+.screeningRecord summary {
+    cursor: pointer;
+
+    padding: 18px 22px;
+
+    list-style: none;
+
+    background-color: #ffffff;
+
+    transition: background-color 0.2s;
+}
+
+
+/* Remove default triangle */
+
+.screeningRecord summary::-webkit-details-marker {
+    display: none;
+}
+
+
+/* Header contents */
+
+.screeningRecord summary div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.screeningRecord summary strong {
+    color: #243f67;
+    font-size: 17px;
+}
+
+.screeningRecord summary span {
+    color: #647180;
+    font-size: 14px;
+}
+
+
+/* Hover */
+
+.screeningRecord summary:hover {
+    background-color: #eef2f5;
+}
+
+
+/* Open state */
+
+.screeningRecord[open] summary {
+    background-color: #eef2f5;
+    border-bottom: 1px solid #d8dee5;
+}
+
+
+/* -------------------------
+   Screening Content
+------------------------- */
+
+.screeningContent {
+    padding: 25px;
+}
+
+
+/* Basic screening information */
+
+.screeningDetails {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+.screeningDetails p {
+    margin: 0;
+
+    padding: 15px;
+
+    background-color: #f5f5f5;
+
+    border-radius: 8px;
+}
+
+
+/* -------------------------
+   Form Data
+------------------------- */
+
+.formData {
+    margin-top: 20px;
+}
+
+.formData h3,
+.generatedNote h3 {
+    color: #243f67;
+    margin-bottom: 10px;
+}
+
+.formData pre {
+    background-color: #f5f5f5;
+
+    border: 1px solid #d8dee5;
+    border-radius: 8px;
+
+    padding: 20px;
+
+    overflow-x: auto;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    font-family: Consolas, monospace;
+    font-size: 13px;
+}
+
+
+/* -------------------------
+   Generated Note
+------------------------- */
+
+.generatedNote {
+    margin-top: 25px;
+
+    padding: 20px;
+
+    background-color: white;
+
+    border: 1px solid #d8dee5;
+    border-radius: 8px;
+}
+
+.generatedNote > div {
+    margin-top: 15px;
+}
+
+
+/* -------------------------
+   Smaller Screens
+------------------------- */
+
+@media (max-width: 800px) {
+
+    .patientContainer {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .screeningDetails {
+        grid-template-columns: 1fr;
+    }
+
+}
