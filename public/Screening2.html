@@ -3,13 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DSM-5 Telemedicine ARNP Note Generator with Bipolar Module</title>
+  <title>DSM-5 ARNP Teaching Note Generator — Bipolar, PTSD & 17Q Yes/No</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     .circle-check{appearance:none;-webkit-appearance:none;width:1rem;height:1rem;border:1.5px solid #64748b;border-radius:9999px;background:#fff;display:inline-block;position:relative;flex:0 0 auto;}
     .circle-check:checked{border-color:#1d4ed8;background:#1d4ed8;box-shadow:inset 0 0 0 3px #fff;}
     .circle-check:focus{outline:2px solid #93c5fd;outline-offset:2px;}
+  
+    .yn-group{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+    .yn-choice{border:1px solid #cbd5e1;border-radius:.5rem;padding:.45rem .75rem;background:white;cursor:pointer;font-size:.875rem;font-weight:600}
+    .yn-choice input{margin-right:.35rem}
+    .guide-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:1rem;padding:1rem}
   </style>
 </head>
 <body class="bg-slate-100 text-slate-900">
@@ -17,7 +22,7 @@
     <header class="bg-slate-900 text-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">DSM-5 Telemedicine ARNP Note Generator</h1>
-        <p class="text-slate-300 mt-1">Focused documentation for MDD, Panic Disorder, PTSD Criteria Override, and Bipolar Disorder.</p>
+        <p class="text-slate-300 mt-1">Teaching-focused documentation for MDD, Panic Disorder, PTSD, Bipolar Disorder, and complete 17Q Yes/No response entry.</p>
       </div>
     </header>
 
@@ -29,7 +34,7 @@
           <label><span class="text-sm font-medium">DOB</span><input id="dob" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="date"></label>
           <label><span class="text-sm font-medium">Date of Service</span><input id="dos" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="date"></label>
           <label><span class="text-sm font-medium">Provider / ARNP</span><input id="provider" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
-          <label><span class="text-sm font-medium">MRN</span><input id="patientmrn" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
+          <label><span class="text-sm font-medium">MRN</span><input id="mrn" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
           <label><span class="text-sm font-medium">Provider Location</span><input id="providerLocation" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
           <label><span class="text-sm font-medium">Telehealth Consent</span><select id="consent" class="mt-1 w-full rounded-lg border border-slate-300 p-2"><option>Yes</option><option>No</option><option>Verbal consent documented</option></select></label>
           <label><span class="text-sm font-medium">Emergency Contact</span><input id="emergency" class="mt-1 w-full rounded-lg border border-slate-300 p-2" type="text"></label>
@@ -44,10 +49,9 @@
           </div>
           <div class="flex flex-wrap gap-3">
             <button id="bypassBtn" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">Simulate Complete / Bypass Non-Target Modules</button>
-            <button id="generateBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Generate ARNP Telemedicine Note</button>
-            <button Id="saveBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Save</button>
+            <button id="generateBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Generate ARNP Telemedicine Note</button><button id="shortBtn" class="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">Generate Short Bipolar Report</button><button id="screeningBtn" class="rounded-lg bg-purple-700 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-800">Generate Short Screening Report</button><button id="downloadBtn" class="rounded-lg bg-indigo-700 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-800">Download Report (.html)</button>
+            <button id="saveBtn" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Save</button>
             <button id="clearBtn" class="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Clear All</button>
-            
           </div>
         </div>
       </section>
@@ -60,10 +64,58 @@
         <div class="flex justify-between flex-wrap gap-3 items-center">
           <div>
             <h2 class="text-xl font-semibold">17Q Response Entry</h2>
-            <p class="text-sm text-slate-500">Optional quick-entry controls for targeted 17Q responses. Q6, Q7, Q9, and Q15 include inline Yes/No selection circles. Q9 is intentionally paired with Q15 and not linked with Q16.</p>
+            <p class="text-sm text-slate-500">All 17 questions now include Yes/No response controls for teaching, screening, and documentation practice.</p>
           </div>
         </div>
         <div id="q17Entry" class="mt-4 space-y-2"></div>
+      </section>
+
+      <section class="bg-white rounded-2xl shadow-sm ring-1 ring-indigo-200 p-5">
+        <div class="guide-box">
+          <h2 class="text-xl font-bold text-blue-900">Teaching & Diagnosis Guide — How to Use This Tool</h2>
+          <p class="text-sm mt-2"><strong>Purpose:</strong> This page is a structured teaching and documentation aid. Students should ask each question, choose <strong>Yes</strong> only when the patient clearly endorses the item, and choose <strong>No</strong> when it is denied or not supported. The tool helps organize criteria; the supervising clinician makes the final diagnosis and coding decision.</p>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            <div class="rounded-xl border border-blue-200 bg-white p-4">
+              <h3 class="font-bold text-blue-900">17Q — Student Teaching Rule</h3>
+              <ul class="list-disc ml-5 mt-2 text-sm space-y-1">
+                <li>Ask Q1 through Q17 in order and select Yes or No for every question.</li>
+                <li>Q1–Q5 and Q8–Q14 mainly help document depressive symptoms, duration, impairment, and exclusion factors.</li>
+                <li>Q6–Q7 screen for alcohol/drug concerns; positive answers require further substance-use assessment.</li>
+                <li>Q15 screens restlessness/impulsivity and may prompt further mood or anxiety assessment.</li>
+                <li>Q16 screens trauma symptoms/avoidance and may prompt completion of the PTSD module.</li>
+                <li>Q17 helps document prior depressive episodes/recurrent course.</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-blue-200 bg-white p-4">
+              <h3 class="font-bold text-blue-900">PTSD — Student Teaching Rule</h3>
+              <ul class="list-disc ml-5 mt-2 text-sm space-y-1">
+                <li>Select Yes or No for every PTSD item under Criteria A through G.</li>
+                <li>Criterion A requires at least 1 qualifying trauma-exposure item.</li>
+                <li>Criterion B requires at least 1 intrusion symptom.</li>
+                <li>Criterion C requires at least 1 avoidance symptom.</li>
+                <li>Criterion D requires at least 2 negative cognition/mood symptoms.</li>
+                <li>Criterion E requires at least 2 arousal/reactivity symptoms.</li>
+                <li>Criterion F requires duration greater than 1 month.</li>
+                <li>Criterion G requires clinically significant distress or impairment.</li>
+                <li>PTSD is shown as supported only when all required A–G thresholds are met.</li>
+              </ul>
+            </div>
+
+            <div class="rounded-xl border border-blue-200 bg-white p-4">
+              <h3 class="font-bold text-blue-900">Bipolar — Student Teaching Rule</h3>
+              <p class="text-sm mt-2"><strong>Mania:</strong> mood/energy change + required duration or hospitalization + at least 3 manic symptoms + severity + exclusion.</p>
+              <p class="text-sm mt-2"><strong>Hypomania:</strong> mood/energy change for at least 4 days + at least 3 symptoms + observable change + no hospitalization/psychosis + exclusion.</p>
+              <p class="text-sm mt-2"><strong>Depression:</strong> at least 5 of 9 symptoms, including depressed mood or loss of interest, plus impairment and exclusion.</p>
+            </div>
+
+            <div class="rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <h3 class="font-bold text-amber-900">Supervisor / Safety Note</h3>
+              <p class="text-sm mt-2">Use the automatic result as a teaching prompt, not as a stand-alone diagnosis. Review chronology, differential diagnoses, substance/medication effects, medical causes, functional impairment, and safety. Any suicidal ideation, homicidal ideation, psychosis, dangerous impulsivity, intoxication/withdrawal, or inability to maintain safety requires same-session clinical risk assessment and appropriate disposition.</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5">
@@ -109,7 +161,7 @@ const modules=[
 {key:'F',title:'Criterion F: Duration',required:1,items:[['ptsd_f1','Duration greater than 1 month.']]},
 {key:'G',title:'Criterion G: Functional Impairment',required:1,items:[['ptsd_g1','Clinically significant distress or impairment.']]}
 ]},
-{id:'bipolar',title:'Module 4: Bipolar Disorder — Bipolar I / Bipolar II Target',target:true,bipolar:true,criteria:[
+{id:'bipolar',title:'Module 4: Bipolar Disorder — Final Student Decision Module',target:true,bipolar:true,criteria:[
 {key:'MANIC_A',title:'Manic Episode Criterion A: Mood and Energy Duration',required:1,items:[['bp_manic_a1','Distinct period of abnormally and persistently elevated, expansive, or irritable mood with abnormally increased activity or energy.'],['bp_manic_a2','Episode lasted at least 1 week and was present most of the day, nearly every day.'],['bp_manic_a3','Episode required hospitalization, regardless of duration.']]},
 {key:'MANIC_B',title:'Manic Episode Criterion B: Manic Symptoms',required:3,items:[['bp_manic_b1','Inflated self-esteem or grandiosity.'],['bp_manic_b2','Decreased need for sleep, such as feeling rested after only a few hours.'],['bp_manic_b3','More talkative than usual or pressure to keep talking.'],['bp_manic_b4','Flight of ideas or subjective racing thoughts.'],['bp_manic_b5','Distractibility reported or observed.'],['bp_manic_b6','Increase in goal-directed activity or psychomotor agitation.'],['bp_manic_b7','Excessive involvement in activities with high potential for painful consequences.']]},
 {key:'MANIC_C',title:'Manic Episode Criterion C: Severity',required:1,items:[['bp_manic_c1','Mood disturbance caused marked impairment in social or occupational functioning.'],['bp_manic_c2','Hospitalization was necessary to prevent harm to self or others.'],['bp_manic_c3','Psychotic features were present.']]},
@@ -125,22 +177,15 @@ const modules=[
 function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
 function row(id,text,target){return `<div class="rounded-xl border border-slate-200 ${target?'bg-blue-50/40':'bg-white'} p-3"><div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3"><span class="text-sm font-medium"><b class="text-slate-500 uppercase mr-2">${id.replace('q','Q')}</b>${esc(text)}</span><div class="flex gap-2"><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${id}" value="Yes"> Yes</label><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${id}" value="No"> No</label></div></div></div>`}
 function cbox(id,text){return `<label class="flex gap-3 rounded-xl border border-slate-200 bg-blue-50/40 p-3 cursor-pointer items-start"><input type="checkbox" id="${id}" class="circle-check mt-1"><span class="text-sm font-medium">${esc(text)}</span></label>`}
+function criterionYesNo(id,text){return `<div class="rounded-xl border border-slate-200 bg-blue-50/40 p-3"><div class="text-sm font-medium">${esc(text)}</div><div class="yn-group"><label class="yn-choice"><input type="radio" name="${id}_yn" value="Yes" onchange="syncCriterionYN('${id}',true)">Yes</label><label class="yn-choice"><input type="radio" name="${id}_yn" value="No" onchange="syncCriterionYN('${id}',false)">No</label></div><input type="checkbox" id="${id}" class="hidden"></div>`}
+function bipolarYesNo(id,text){return criterionYesNo(id,text)}
+function syncCriterionYN(id,v){let e=document.getElementById(id);if(e)e.checked=!!v}
+function syncBipolarYN(id,v){syncCriterionYN(id,v)}
 function circleYesNo(name){return `<div class="flex gap-2 shrink-0"><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${name}" value="Yes"> Yes</label><label class="border rounded-lg px-3 py-2 bg-white cursor-pointer"><input type="radio" name="${name}" value="No"> No</label></div>`}
 const q17Questions=[
 ['q17_1','Trouble falling or staying asleep, or sleeping too much.'],['q17_2','Feeling tired or having little energy.'],['q17_3','Poor appetite or overeating.'],['q17_4','Little interest or pleasure in doing things.'],['q17_5','Feeling down, depressed, or hopeless.'],['q17_6','Alcohol/drug use more than intended?'],['q17_7','Substance use causing problems?'],['q17_8','Feeling bad about self, failure, or letting family down.'],['q17_9','Trouble concentrating.'],['q17_10','Psychomotor agitation or slowing noticed by others.'],['q17_11','Thoughts of being better off dead or self-harm.'],['q17_12','Depressive symptoms present for 2 weeks minimum.'],['q17_13','Not better explained by bereavement alone.'],['q17_14','Not attributable to substance, medication, or another medical condition.'],['q17_15','Restlessness/impulsivity?'],['q17_16','Trauma symptoms/avoidance?'],['q17_17','Prior depressive episodes/recurrent course.']
 ];
-function render17Q(){
-  // Q9 (trouble concentrating) is intentionally paired with Q15 (restlessness/impulsivity).
-  // Q16 (trauma symptoms/avoidance) is intentionally not part of this targeted response/styling group.
-  let targets=new Set(['q17_6','q17_7','q17_9','q17_15']);
-  let paired=new Set(['q17_9','q17_15']);
-  let html=q17Questions.map((q,i)=>{
-    let pairedClass=paired.has(q[0])?'bg-blue-50/40 ring-1 ring-blue-200':'bg-white';
-    return `<div class="rounded-xl border border-slate-200 ${pairedClass} p-3"><div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3"><span class="text-sm font-medium"><b class="text-slate-500 uppercase mr-2">Q${i+1}</b>${esc(q[1])}</span>${targets.has(q[0])?circleYesNo(q[0]):''}</div></div>`;
-  }).join('');
-  let box=document.getElementById('q17Entry');
-  if(box)box.innerHTML=html;
-}
+function render17Q(){let html=q17Questions.map((q,i)=>`<div class="rounded-xl border border-slate-200 bg-white p-3"><div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3"><span class="text-sm font-medium"><b class="text-slate-500 uppercase mr-2">Q${i+1}</b>${esc(q[1])}</span>${circleYesNo(q[0])}</div></div>`).join('');let box=document.getElementById('q17Entry');if(box)box.innerHTML=html;}
 const diagnosticCrosswalkDB={
 'Alcohol Abuse, Unspecified':{dx:'Alcohol Abuse, Unspecified',icd9:'305.00',icd10:'F10.10',snomed:'Backend SNOMED CT crosswalk',dsm:'DSM-5: Alcohol Use Disorder'},
 'Polysubstance Abuse, Unspecified':{dx:'Polysubstance Abuse, Unspecified',icd9:'305.90',icd10:'F19.10',snomed:'Backend SNOMED CT crosswalk',dsm:'DSM-5: no formal polysubstance dx'},
@@ -151,7 +196,7 @@ function addDiagnosisRow(selected=''){let wrap=document.getElementById('crosswal
 function fillDxRow(sel){let row=sel.closest('.dx-map-row');let d=diagnosticCrosswalkDB[sel.value]||{icd9:'',icd10:'',snomed:'',dsm:''};row.querySelector('.dxIcd9').value=d.icd9||'';row.querySelector('.dxIcd10').value=d.icd10||'';row.querySelector('.dxSnomed').value=d.snomed||'';row.querySelector('.dxDsm').value=d.dsm||'';}
 function getDiagnosticMappings(){return [...document.querySelectorAll('.dx-map-row')].map(r=>({diagnosis:r.querySelector('.dxSelect')?.value||'',icd9:r.querySelector('.dxIcd9')?.value||'',icd10:r.querySelector('.dxIcd10')?.value||'',snomed:r.querySelector('.dxSnomed')?.value||'',dsm:r.querySelector('.dxDsm')?.value||''})).filter(d=>d.diagnosis||d.icd9||d.icd10||d.snomed||d.dsm)}
 function diagnosticMappingHtml(){let maps=getDiagnosticMappings();if(!maps.length)return '<p>No additional diagnostic crosswalk rows selected.</p>';return `<table class="w-full border-collapse mb-4 text-sm"><thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Diagnosis</th><th class="border border-slate-300 px-3 py-2 text-left">ICD-9</th><th class="border border-slate-300 px-3 py-2 text-left">ICD-10-CM</th><th class="border border-slate-300 px-3 py-2 text-left">SNOMED CT</th><th class="border border-slate-300 px-3 py-2 text-left">DSM-5 / Notes</th></tr></thead><tbody>${maps.map(d=>`<tr><td class="border border-slate-300 px-3 py-2 font-semibold">${esc(d.diagnosis)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.icd9)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.icd10)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.snomed)}</td><td class="border border-slate-300 px-3 py-2">${esc(d.dsm)}</td></tr>`).join('')}</tbody></table>`}
-function render(){document.getElementById('moduleContainer').innerHTML=modules.map((m,i)=>{let body='';if(m.ptsd||m.bipolar){body=m.criteria.map(c=>`<div class="rounded-xl border p-4 bg-white"><div class="flex justify-between gap-3 mb-3"><h4 class="font-semibold">${c.title}</h4><span class="text-xs bg-slate-100 px-3 py-1 rounded-full">${c.required} required</span></div><div class="space-y-2">${c.items.map(x=>cbox(x[0],x[1])).join('')}</div></div>`).join('')}else{body=`<div class="space-y-2">${m.questions.map(q=>row(q[0],q[1],m.target)).join('')}</div>`}return `<details class="bg-white rounded-2xl shadow-sm ring-1 ${m.target?'ring-blue-200':'ring-slate-200'} overflow-hidden" ${i<2||m.ptsd||m.bipolar?'open':''}><summary class="cursor-pointer px-5 py-4 ${m.target?'bg-blue-50':'bg-slate-50'} border-b"><div class="flex justify-between gap-3"><h3 class="text-lg font-semibold">${m.title}</h3><span class="text-xs ${m.target?'bg-blue-700 text-white':'bg-slate-200 text-slate-700'} px-3 py-1 rounded-full h-fit">${m.target?'Active Target':'Bypass Eligible'}</span></div></summary><div class="p-5 space-y-4">${body}</div></details>`}).join('')}
+function render(){document.getElementById('moduleContainer').innerHTML=modules.map((m,i)=>{let body='';if(m.ptsd||m.bipolar){body=(m.bipolar?`<div class="guide-box mb-4"><h4 class="font-bold text-blue-900">Bipolar scoring — simple student rule</h4><p class="text-sm mt-2"><b>Mania:</b> mood + energy and 1 week/hospitalization + 3 symptoms + severity + not substance-caused. <b>Hypomania:</b> mood + energy and 4 days + 3 symptoms + observable change + no hospitalization/psychosis + not substance-caused. <b>Depression:</b> 5 of 9 symptoms including depressed mood or loss of interest + impairment + not substance-caused.</p><p class="text-sm mt-2"><b>Automatic outcomes:</b> Manic = Bipolar I; Hypomanic + Depression = Bipolar II; Manic + Depression = Bipolar I, current episode depressed; full pole + 3 opposite-pole symptoms = with mixed features; partial bipolar pattern = Other Specified Bipolar and Related Disorder; otherwise not fully supported.</p></div>`:'')+m.criteria.map(c=>`<div class="rounded-xl border p-4 bg-white"><div class="flex justify-between gap-3 mb-3"><h4 class="font-semibold">${c.title}</h4><span class="text-xs bg-slate-100 px-3 py-1 rounded-full">${c.required} required</span></div><div class="space-y-2">${c.items.map(x=>m.bipolar?bipolarYesNo(x[0],x[1]):m.ptsd?criterionYesNo(x[0],x[1]):cbox(x[0],x[1])).join('')}</div></div>`).join('')}else{body=`<div class="space-y-2">${m.questions.map(q=>row(q[0],q[1],m.target)).join('')}</div>`}return `<details class="bg-white rounded-2xl shadow-sm ring-1 ${m.target?'ring-blue-200':'ring-slate-200'} overflow-hidden" ${i<2||m.ptsd||m.bipolar?'open':''}><summary class="cursor-pointer px-5 py-4 ${m.target?'bg-blue-50':'bg-slate-50'} border-b"><div class="flex justify-between gap-3"><h3 class="text-lg font-semibold">${m.title}</h3><span class="text-xs ${m.target?'bg-blue-700 text-white':'bg-slate-200 text-slate-700'} px-3 py-1 rounded-full h-fit">${m.target?'Active Target':'Bypass Eligible'}</span></div></summary><div class="p-5 space-y-4">${body}</div></details>`}).join('')}
 function val(name){let e=document.querySelector(`input[name="${name}"]:checked`);return e?e.value:''}
 function setVal(name,value){let e=document.querySelector(`input[name="${name}"][value="${value}"]`);if(e)e.checked=true}
 function checked(id){let e=document.getElementById(id);return e&&e.checked}
@@ -161,11 +206,22 @@ function criterionSelected(items){return items.filter(i=>checked(i[0])).map(i=>i
 function evalMDD(){let y=yesQs('mood').map(q=>q[0]);let selected=yesQs('mood').map(q=>q[1]);let count=['q1','q2','q3','q4','q5','q6','q7','q8','q9'].filter(id=>val(id)==='Yes').length;let core=y.includes('q4')||y.includes('q5');let meets=core&&count>=5&&val('q10')==='Yes'&&val('q14')==='Yes'&&val('q15')==='Yes';let recurrent=val('q17')==='Yes';return{meets,count,core,selected,code:recurrent?'F33.9':'F32.9',episode:recurrent?'Recurrent, unspecified':'Single episode, unspecified'}}
 function evalPanic(){let y=yesQs('panic').map(q=>q[0]);let selected=yesQs('panic').map(q=>q[1]);let phys=['q21','q22','q23','q24','q25','q26','q27','q28','q29','q30','q31','q32'].filter(id=>val(id)==='Yes').length;let recurrent=y.includes('q33')||(y.includes('q18')&&y.includes('q19'));let worry=y.includes('q34')||y.includes('q35')||y.includes('q20');let rule=y.includes('q36')&&y.includes('q37');let impair=y.includes('q38');return{meets:recurrent&&phys>=4&&worry&&rule&&impair,phys,recurrent,worry,rule,impair,selected,code:'F41.0'}}
 function evalPTSD(){let m=modules.find(x=>x.id==='ptsd');let criteria={},selected=[];m.criteria.forEach(c=>{let chk=c.items.filter(i=>checked(i[0]));criteria[c.key]={title:c.title,count:chk.length,required:c.required,met:chk.length>=c.required,selected:chk.map(i=>i[1])};chk.forEach(i=>selected.push(`${c.key}: ${i[1]}`))});return{meets:['A','B','C','D','E','F','G'].every(k=>criteria[k].met),criteria,selected,code:'F43.10'}}
-function evalBipolar(){let m=modules.find(x=>x.id==='bipolar');let criteria={},selected=[];m.criteria.forEach(c=>{let chk=c.items.filter(i=>checked(i[0]));criteria[c.key]={title:c.title,count:chk.length,required:c.required,met:c.required===0?chk.length>0:chk.length>=c.required,selected:chk.map(i=>i[1])};chk.forEach(i=>selected.push(`${c.key}: ${i[1]}`))});let manicA=checked('bp_manic_a1')&&(checked('bp_manic_a2')||checked('bp_manic_a3'));let manicBCount=criterionCount(m.criteria.find(c=>c.key==='MANIC_B').items);let manicBReq=(checked('bp_manic_a1')&&manicBCount>=3);let manicC=checked('bp_manic_c1')||checked('bp_manic_c2')||checked('bp_manic_c3');let manicD=checked('bp_manic_d1')||checked('bp_manic_d2');let manicMeets=manicA&&manicBReq&&manicC&&manicD;
+function evalBipolar(){let m=modules.find(x=>x.id==='bipolar');let criteria={},selected=[];m.criteria.forEach(c=>{let chk=c.items.filter(i=>checked(i[0]));criteria[c.key]={title:c.title,count:chk.length,required:c.required,met:c.required===0?chk.length>0:chk.length>=c.required,selected:chk.map(i=>i[1])};chk.forEach(i=>selected.push(`${c.key}: ${i[1]}`))});
+let manicA=checked('bp_manic_a1')&&(checked('bp_manic_a2')||checked('bp_manic_a3'));let manicBCount=criterionCount(m.criteria.find(c=>c.key==='MANIC_B').items);let manicBReq=manicBCount>=3;let manicC=checked('bp_manic_c1')||checked('bp_manic_c2')||checked('bp_manic_c3');let manicD=checked('bp_manic_d1')||checked('bp_manic_d2');let manicMeets=manicA&&manicBReq&&manicC&&manicD;
 let hypoA=checked('bp_hypo_a1')&&checked('bp_hypo_a2');let hypoBCount=criterionCount(m.criteria.find(c=>c.key==='HYPO_B').items);let hypoB=hypoBCount>=3;let hypoCDEF=checked('bp_hypo_c1')&&checked('bp_hypo_d1')&&checked('bp_hypo_e1')&&checked('bp_hypo_e2')&&checked('bp_hypo_f1');let hypoMeets=hypoA&&hypoB&&hypoCDEF;
 let depCount=criterionCount(m.criteria.find(c=>c.key==='DEP_A').items);let depCore=checked('bp_dep_a1')||checked('bp_dep_a2');let depBC=checked('bp_dep_b1')&&checked('bp_dep_c1');let depressiveMeets=depCount>=5&&depCore&&depBC;
-let dx='Bipolar disorder criteria not fully supported';let code='';if(manicMeets){dx='Bipolar I Disorder, current or most recent episode unspecified';code='F31.9'}else if(hypoMeets&&depressiveMeets){dx='Bipolar II Disorder';code='F31.81'}
-let safetyFlags=['bp_tel_2','bp_tel_6','bp_manic_c2','bp_manic_c3','bp_dep_a9'].filter(id=>checked(id)).length;return{criteria,selected,manicMeets,manicBCount,hypoMeets,hypoBCount,depressiveMeets,depCount,depCore,dx,code,safetyFlags}}
+let depressiveOppositeCount=depCount;let manicOppositeCount=manicBCount;let mixedFromMania=manicMeets&&depressiveOppositeCount>=3;let mixedFromDepression=depressiveMeets&&manicOppositeCount>=3&&!manicMeets;
+let anyBipolarPositive=selected.some(x=>!x.startsWith('TELE:'));
+let partialEpisode=(manicA||manicBCount>0||hypoA||hypoBCount>0||depCount>0)&&!(manicMeets||(hypoMeets&&depressiveMeets));
+let dx='Bipolar disorder criteria not fully supported';let code='';let category='Not fully supported';let summary='Selected responses do not fully satisfy an automated Bipolar I or Bipolar II episode pattern.';
+if(manicMeets&&depressiveMeets&&mixedFromMania){dx='Bipolar I Disorder, current or most recent episode with mixed features';code='F31.6';category='Bipolar I — Mixed Features';summary='A full manic episode is supported, a full depressive episode is also supported, and opposite-pole symptoms are present.';}
+else if(manicMeets&&depressiveMeets){dx='Bipolar I Disorder, current or most recent episode depressed';code='F31.9';category='Bipolar I — Depressed';summary='A lifetime manic episode is supported and a major depressive episode is also supported.';}
+else if(manicMeets&&mixedFromMania){dx='Bipolar I Disorder, current or most recent episode manic, with mixed features';code='F31.6';category='Bipolar I — Mixed Features';summary='A full manic episode is supported with at least three depressive symptoms.';}
+else if(manicMeets){dx='Bipolar I Disorder, current or most recent episode unspecified';code='F31.9';category='Bipolar I';summary='A full manic episode is supported.';}
+else if(hypoMeets&&depressiveMeets&&mixedFromDepression){dx='Bipolar II Disorder, current or most recent episode depressed, with mixed features';code='F31.81';category='Bipolar II — Mixed Features';summary='A full hypomanic episode and major depressive episode are supported, with at least three manic-spectrum symptoms during the depressive presentation.';}
+else if(hypoMeets&&depressiveMeets){dx='Bipolar II Disorder';code='F31.81';category='Bipolar II — Depressed';summary='A full hypomanic episode and a full major depressive episode are supported, without a full manic episode.';}
+else if(partialEpisode&&anyBipolarPositive){dx='Other Specified Bipolar and Related Disorder — criteria pattern incomplete';code='F31.89';category='Other Specified / Bipolar NOS-style';summary='Bipolar-spectrum symptoms are present, but one or more required duration, symptom-count, severity, impairment, or exclusion criteria are not fully met.';}
+let safetyFlags=['bp_tel_2','bp_tel_6','bp_manic_c2','bp_manic_c3','bp_dep_a9'].filter(id=>checked(id)).length;return{criteria,selected,manicMeets,manicBCount,hypoMeets,hypoBCount,depressiveMeets,depCount,depCore,dx,code,category,summary,safetyFlags,mixedFromMania,mixedFromDepression}}
 function field(id,f){let e=document.getElementById(id);return e&&e.value?e.value:f}
 function yesNo(flag){return flag?'Yes':'No'}
 function generate(){let mdd=evalMDD(),panic=evalPanic(),ptsd=evalPTSD(),bipolar=evalBipolar();let dx=[];if(mdd.meets)dx.push(`Major Depressive Disorder, ${mdd.episode} (${mdd.code})`);if(panic.meets)dx.push(`Panic Disorder (${panic.code})`);if(ptsd.meets)dx.push(`Post-Traumatic Stress Disorder (${ptsd.code})`);if(bipolar.code)dx.push(`${bipolar.dx} (${bipolar.code})`);let ptsdRows=Object.keys(ptsd.criteria).map(k=>{let c=ptsd.criteria[k];return `<tr><td class="border border-slate-300 px-3 py-2 font-semibold">${esc(c.title)}</td><td class="border border-slate-300 px-3 py-2">${c.met?'Met':'Not fully met'}</td><td class="border border-slate-300 px-3 py-2">${c.count}/${c.required} required</td></tr>`}).join('');let bipolarRows=Object.keys(bipolar.criteria).map(k=>{let c=bipolar.criteria[k];let label=c.required===0?'Informational':`${c.count}/${c.required} required`;return `<tr><td class="border border-slate-300 px-3 py-2 font-semibold">${esc(c.title)}</td><td class="border border-slate-300 px-3 py-2">${c.met?'Selected/met':'Not fully met'}</td><td class="border border-slate-300 px-3 py-2">${label}</td></tr>`}).join('');let dxHtml=dx.length?`<ol class="list-decimal ml-6 space-y-1">${dx.map(d=>`<li>${esc(d)}</li>`).join('')}</ol>`:`<p>No target diagnosis is fully supported by selected responses. ARNP should complete clinical interview and correlation before assigning diagnosis.</p>`;let list=(items)=>items&&items.length?`<ul class="list-disc ml-6 space-y-1">${items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:`<p>None selected.</p>`;let report=`
@@ -180,6 +236,8 @@ function generate(){let mdd=evalMDD(),panic=evalPanic(),ptsd=evalPTSD(),bipolar=
       <tr><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Telehealth Consent</td><td class="border border-slate-300 px-3 py-2">${esc(field('consent','[Consent]'))}</td><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Emergency Contact</td><td class="border border-slate-300 px-3 py-2">${esc(field('emergency','[Emergency Contact]'))}</td></tr>
     </tbody>
   </table>
+
+  ${buildExecutiveBlock(mdd,panic,ptsd,bipolar)}
 
   <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Chief Complaint / Encounter</h2>
   <p>Telemedicine behavioral health screening and diagnostic clarification. This report includes exactly four active modules: Major Depressive Disorder, Panic Disorder, PTSD Criteria Override, and Bipolar Disorder.</p>
@@ -199,11 +257,12 @@ function generate(){let mdd=evalMDD(),panic=evalPanic(),ptsd=evalPTSD(),bipolar=
 
   <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">PTSD Criteria Override</h2>
   <p><strong>Status:</strong> ${ptsd.meets?'DSM-5 PTSD criteria supported':'Criteria not fully supported'}.</p>
+  <p class="text-sm"><strong>Teaching rule:</strong> A≥1, B≥1, C≥1, D≥2, E≥2, F≥1, and G≥1 are required for the automated PTSD result to turn on.</p>
   <table class="w-full border-collapse mb-4 text-sm"><thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Criterion</th><th class="border border-slate-300 px-3 py-2 text-left">Status</th><th class="border border-slate-300 px-3 py-2 text-left">Threshold</th></tr></thead><tbody>${ptsdRows}</tbody></table>
   <p><strong>Positive findings:</strong></p>${list(ptsd.selected)}
 
   <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Bipolar Disorder</h2>
-  <p><strong>Status:</strong> ${bipolar.code?esc(bipolar.dx):'Bipolar I/Bipolar II criteria not fully supported by selected responses'}.</p>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 mb-4"><p><strong>Executive Summary:</strong> ${esc(bipolar.summary)}</p><p class="mt-2"><strong>Automatic Bipolar Outcome:</strong> ${esc(bipolar.category)}${bipolar.code?' — '+esc(bipolar.dx)+' ('+esc(bipolar.code)+')':''}.</p></div>
   <table class="w-full border-collapse mb-4 text-sm"><thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Criterion Group</th><th class="border border-slate-300 px-3 py-2 text-left">Status</th><th class="border border-slate-300 px-3 py-2 text-left">Threshold</th></tr></thead><tbody>${bipolarRows}</tbody></table>
   <p><strong>Manic episode supported:</strong> ${yesNo(bipolar.manicMeets)}. <strong>Manic symptom count:</strong> ${bipolar.manicBCount}.</p>
   <p><strong>Hypomanic episode supported:</strong> ${yesNo(bipolar.hypoMeets)}. <strong>Hypomanic symptom count:</strong> ${bipolar.hypoBCount}.</p>
@@ -240,115 +299,103 @@ function generate(){let mdd=evalMDD(),panic=evalPanic(),ptsd=evalPTSD(),bipolar=
   <p>If suicidal ideation, homicidal ideation, psychosis, intoxication/withdrawal risk, abuse, self-harm risk, dangerous impulsivity, manic escalation, or inability to maintain safety is endorsed or suspected, complete same-session risk assessment, safety planning, crisis resources, and disposition.</p>
 
   <p class="mt-8"><strong>ARNP Signature:</strong> ____________________________</p>
-</div>`;document.getElementById('noteOutput').innerHTML=report;}function bypass(){modules.filter(m=>!m.target).forEach(m=>m.questions.forEach(q=>setVal(q[0],'No')));alert('There are no non-target modules in this four-module version. All modules remain active and editable.')}
+</div>`;document.getElementById('noteOutput').innerHTML=report;}function generateShortBipolar(){let b=evalBipolar();let bsev=b.manicMeets?'High':(b.hypoMeets&&b.depressiveMeets)?'Moderate-High':b.code?'Moderate':'Low';let pname=esc(field('patientName','[Patient Name]'));let dos=esc(field('dos','[DOS]'));let provider=esc(field('provider','[Provider]'));let positives=b.selected.filter(x=>!x.startsWith('TELE:')).slice(0,12);let findings=positives.length?`<ul class="list-disc ml-6">${positives.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p>No bipolar criteria selected.</p>';document.getElementById('noteOutput').innerHTML=`<div class="mx-auto max-w-4xl bg-white text-slate-950" style="font-family: Georgia, 'Times New Roman', serif; font-size:12pt; line-height:1.6;"><h1 class="text-2xl font-bold text-center border-b border-slate-300 pb-3 mb-5">Short Bipolar ARNP Clinical Report</h1><p><strong>Patient:</strong> ${pname} &nbsp; <strong>DOS:</strong> ${dos} &nbsp; <strong>Provider:</strong> ${provider}</p><h2 class="text-xl font-bold mt-5 mb-2">Executive Summary</h2><p>${esc(b.summary)}</p><h2 class="text-xl font-bold mt-5 mb-2">Key Findings</h2><p><strong>Manic episode:</strong> ${yesNo(b.manicMeets)} (${b.manicBCount} manic symptoms). <strong>Hypomanic episode:</strong> ${yesNo(b.hypoMeets)} (${b.hypoBCount} hypomanic symptoms). <strong>Major depressive episode:</strong> ${yesNo(b.depressiveMeets)} (${b.depCount} depressive symptoms; core symptom ${yesNo(b.depCore)}).</p>${findings}<h2 class="text-xl font-bold mt-5 mb-2">Risk Level</h2><p>${riskBadge(bsev)}</p><h2 class="text-xl font-bold mt-5 mb-2">Diagnostic Impression</h2><p><strong>${esc(b.dx)}${b.code?' ('+esc(b.code)+')':''}</strong></p><h2 class="text-xl font-bold mt-5 mb-2">Safety Reminder</h2><p>Complete same-session suicide, homicide, psychosis, intoxication/withdrawal, impulsivity, and ability-to-maintain-safety assessment when clinically indicated. Final diagnosis and code require clinician verification.</p><p class="mt-8"><strong>ARNP Signature:</strong> ____________________________</p></div>`}
+function riskBadge(level){let map={'High':'bg-red-100 text-red-800 border border-red-300','Moderate':'bg-amber-100 text-amber-800 border border-amber-300','Moderate-High':'bg-orange-100 text-orange-800 border border-orange-300','Low':'bg-slate-100 text-slate-600 border border-slate-300'};return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${map[level]||map['Low']}">${esc(level)}</span>`}
+function buildRiskRows(mdd,panic,ptsd,bipolar){
+  let rows=[];
+  if(mdd.meets){let sev=mdd.count>=8?'High':mdd.count>=7?'Moderate-High':'Moderate';rows.push({name:'Major Depressive Disorder',status:'Positive',sev,action:'Assess DSM-5 depressive symptoms, functional impairment, and safety, including a direct suicide risk assessment.'});}
+  else rows.push({name:'Major Depressive Disorder',status:'Negative',sev:'Low',action:'Routine monitoring.'});
+  if(panic.meets){let sev=panic.phys>=6?'High':'Moderate';rows.push({name:'Panic Disorder',status:'Positive',sev,action:'Evaluate panic attack frequency, triggers, avoidance behavior, and rule out medical/cardiac causes.'});}
+  else rows.push({name:'Panic Disorder',status:'Negative',sev:'Low',action:'Routine monitoring.'});
+  if(ptsd.meets)rows.push({name:'PTSD',status:'Positive',sev:'High',action:'Complete full PTSD diagnostic interview, trauma-focused assessment, and safety evaluation.'});
+  else rows.push({name:'PTSD',status:'Negative',sev:'Low',action:'Continue routine trauma screening; criteria not fully supported at this time.'});
+  if(bipolar.code){let sev=(bipolar.manicMeets)?'High':(bipolar.hypoMeets&&bipolar.depressiveMeets)?'Moderate-High':'Moderate';rows.push({name:'Bipolar Disorder',status:'Positive',sev,action:'Evaluate mood episode history and safety; avoid antidepressant monotherapy if bipolar is suspected; consider psychiatric referral.'});}
+  else rows.push({name:'Bipolar Disorder',status:'Negative',sev:'Low',action:'Routine monitoring.'});
+  return rows;
+}
+function buildExecutiveBlock(mdd,panic,ptsd,bipolar){
+  let rows=buildRiskRows(mdd,panic,ptsd,bipolar);
+  let positives=rows.filter(r=>r.status==='Positive');let negatives=rows.filter(r=>r.status==='Negative');
+  let overall=positives.some(r=>r.sev==='High')?'High':positives.some(r=>r.sev==='Moderate-High')?'Moderate-High':positives.length?'Moderate':'Low';
+  let highRiskNames=positives.filter(r=>r.sev==='High'||r.sev==='Moderate-High').map(r=>r.name);
+  let summary=positives.length?`Behavioral health screening demonstrated positive findings for ${positives.map(r=>r.name).join(', ')}.`:'Behavioral health screening did not demonstrate positive findings on the active screened modules.';
+  if(highRiskNames.length)summary+=` Positive high-risk findings in ${highRiskNames.join(', ')} warrant prompt diagnostic and safety evaluation, including direct assessment of suicide risk.`;
+  summary+=negatives.length?` Negative screens included ${negatives.map(r=>r.name).join(', ')}.`:'';
+  summary+=` Overall screening risk is ${overall}. ARNP follow-up should include diagnostic assessment, evaluation of functional impairment, medical and medication contributors, safety assessment, and evidence-based treatment planning.`;
+  let keyFindingsHtml=positives.length?`<ul class="list-disc ml-6 space-y-1">${positives.map(r=>`<li>${riskBadge(r.sev)} ${esc(r.name)}</li>`).join('')}</ul>`:'<p>No positive findings on the active screened modules.</p>';
+  let matrixRows=rows.map(r=>`<tr><td class="border border-slate-300 px-3 py-2 font-semibold">${esc(r.name)}</td><td class="border border-slate-300 px-3 py-2">${esc(r.status)}</td><td class="border border-slate-300 px-3 py-2">${riskBadge(r.sev)}</td><td class="border border-slate-300 px-3 py-2 text-sm">${esc(r.action)}</td></tr>`).join('');
+  return `
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Executive Clinical Summary</h2>
+  <p>${summary}</p>
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Key Positive Findings</h2>
+  ${keyFindingsHtml}
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Clinical Impression</h2>
+  <p>Overall behavioral health screening risk: ${riskBadge(overall)}${highRiskNames.length?' Prompt diagnostic and safety evaluation is indicated based on the positive high-risk screen(s).':''}</p>
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Color-Coded Risk Matrix</h2>
+  <table class="w-full border-collapse mb-4 text-sm"><thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Module</th><th class="border border-slate-300 px-3 py-2 text-left">Status</th><th class="border border-slate-300 px-3 py-2 text-left">Severity</th><th class="border border-slate-300 px-3 py-2 text-left">Recommended Action</th></tr></thead><tbody>${matrixRows}</tbody></table>`;
+}
+function generateScreeningReport(){
+  let mdd=evalMDD(),panic=evalPanic(),ptsd=evalPTSD(),bipolar=evalBipolar();
+  let pname=esc(field('patientName','[Patient Name]'));let dob=esc(field('dob','[DOB]'));let provider=esc(field('provider','[Provider]'));let dos=esc(field('dos','[DOS]'));
+  let dxLine=[mdd.meets?`Major Depressive Disorder, ${mdd.episode} (${mdd.code})`:'',panic.meets?`Panic Disorder (${panic.code})`:'',ptsd.meets?`Post-Traumatic Stress Disorder (${ptsd.code})`:'',bipolar.code?`${bipolar.dx} (${bipolar.code})`:''].filter(Boolean);
+  let dxHtml=dxLine.length?`<ol class="list-decimal ml-6 space-y-1">${dxLine.map(d=>`<li>${esc(d)}</li>`).join('')}</ol>`:'<p>No target diagnosis is fully supported by selected responses. ARNP should complete clinical interview and correlation before assigning diagnosis.</p>';
+  document.getElementById('noteOutput').innerHTML=`
+<div class="mx-auto max-w-4xl bg-white text-slate-950" style="font-family: Georgia, 'Times New Roman', serif; font-size:12pt; line-height:1.6;">
+  <h1 class="text-2xl font-bold text-center border-b border-slate-300 pb-3 mb-5">Clinical Screening Assessment — Short Report</h1>
+  <table class="w-full border-collapse mb-5 text-sm">
+    <tbody>
+      <tr><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">Patient</td><td class="border border-slate-300 px-3 py-2">${pname}</td><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">DOB</td><td class="border border-slate-300 px-3 py-2">${dob}</td></tr>
+      <tr><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">DOS</td><td class="border border-slate-300 px-3 py-2">${dos}</td><td class="border border-slate-300 px-3 py-2 font-semibold bg-slate-50">ARNP</td><td class="border border-slate-300 px-3 py-2">${provider}</td></tr>
+    </tbody>
+  </table>
+  ${buildExecutiveBlock(mdd,panic,ptsd,bipolar)}
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Diagnostic Impression</h2>
+  ${dxHtml}
+  <h2 class="text-xl font-bold border-b border-slate-300 mt-6 mb-3">Safety Reminder</h2>
+  <p>If suicidal ideation, homicidal ideation, psychosis, intoxication/withdrawal risk, or inability to maintain safety is endorsed or suspected, complete same-session risk assessment, safety planning, crisis resources, and disposition. Final diagnosis and coding require clinician verification.</p>
+  <p class="mt-8"><strong>ARNP Signature:</strong> ____________________________</p>
+</div>`;
+}
+function downloadReport(){
+  let content=document.getElementById('noteOutput').innerHTML;
+  let pname=field('patientName','Patient').replace(/[^a-z0-9]+/gi,'_');
+  let dos=field('dos', new Date().toISOString().slice(0,10));
+  let full=`<!doctype html><html><head><meta charset="utf-8"><title>ARNP Clinical Report</title><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-white p-8">${content}</body></html>`;
+  let blob=new Blob([full],{type:'text/html'});
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`ARNP_Report_${pname}_${dos}.html`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  let status=document.getElementById('copyStatus');if(status)status.textContent='Report downloaded as an HTML file.';
+}
+function bypass(){modules.filter(m=>!m.target).forEach(m=>m.questions.forEach(q=>setVal(q[0],'No')));alert('There are no non-target modules in this four-module version. All modules remain active and editable.')}
 function clearAll(){document.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(e=>e.checked=false);document.getElementById('noteOutput').innerHTML=`<div class="mx-auto max-w-4xl bg-white" style="font-family: Georgia, 'Times New Roman', serif;"><h1 class="text-2xl font-bold text-center border-b border-slate-300 pb-3 mb-4">DSM-5 Telemedicine ARNP Clinical Report</h1><p class="text-slate-600 text-center">Click “Generate ARNP Telemedicine Note” after completing active modules.</p></div>`;} 
 function copy(){let o=document.getElementById('noteOutput');let range=document.createRange();range.selectNodeContents(o);let sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);try{document.execCommand('copy');document.getElementById('copyStatus').textContent='Word-style report copied. Paste into Microsoft Word to preserve formatting.';}catch(e){navigator.clipboard.writeText(o.innerText).then(()=>document.getElementById('copyStatus').textContent='Plain text copied.').catch(()=>document.getElementById('copyStatus').textContent='Copy failed; select and copy manually.')}sel.removeAllRanges();}
-document.addEventListener('DOMContentLoaded',()=>{render();render17Q();document.getElementById('dos').value=new Date().toISOString().slice(0,10);document.getElementById('bypassBtn').onclick=bypass;document.getElementById('generateBtn').onclick=generate;document.getElementById('clearBtn').onclick=clearAll;let addDx=document.getElementById('addDxBtn');if(addDx)addDx.onclick=()=>addDiagnosisRow();});
-
-//ai generated
-const moduleDefinitions = [
-  {
-    key: 'mood',
-    label: 'Mood / Depression — MDD',
-    ids: [
-      'q1','q2','q3','q4','q5','q6','q7','q8',
-      'q9','q10','q11','q12','q13','q14',
-      'q15','q16','q17'
-    ]
-  },
-
-  {
-    key: 'panic',
-    label: 'Panic / Anxiety — Panic Disorder',
-    ids: [
-      'q18','q19','q20','q21','q22','q23',
-      'q24','q25','q26','q27','q28','q29',
-      'q30','q31','q32','q33','q34','q35',
-      'q36','q37','q38','q39','q40','q41',
-      'q42','q43','q44','q45'
-    ]
-  },
-
-  {
-    key: 'ptsd',
-    label: 'PTSD Criteria Override',
-    ids: [
-      'ptsd_a1','ptsd_a2','ptsd_a3','ptsd_a4','ptsd_a5',
-
-      'ptsd_b1','ptsd_b2','ptsd_b3','ptsd_b4','ptsd_b5',
-
-      'ptsd_c1','ptsd_c2',
-
-      'ptsd_d1','ptsd_d2','ptsd_d3',
-      'ptsd_d4','ptsd_d5','ptsd_d6','ptsd_d7',
-
-      'ptsd_e1','ptsd_e2','ptsd_e3',
-      'ptsd_e4','ptsd_e5','ptsd_e6',
-
-      'ptsd_f1',
-
-      'ptsd_g1'
-    ]
-  },
-
-  {
-    key: 'bipolar',
-    label: 'Bipolar Disorder — Bipolar I / Bipolar II',
-    ids: [
-      'bp_manic_a1','bp_manic_a2','bp_manic_a3',
-
-      'bp_manic_b1','bp_manic_b2','bp_manic_b3',
-      'bp_manic_b4','bp_manic_b5','bp_manic_b6',
-      'bp_manic_b7',
-
-      'bp_manic_c1','bp_manic_c2','bp_manic_c3',
-
-      'bp_manic_d1','bp_manic_d2',
-
-      'bp_hypo_a1','bp_hypo_a2',
-
-      'bp_hypo_b1','bp_hypo_b2','bp_hypo_b3',
-      'bp_hypo_b4','bp_hypo_b5','bp_hypo_b6',
-      'bp_hypo_b7',
-
-      'bp_hypo_c1',
-      'bp_hypo_d1',
-      'bp_hypo_e1','bp_hypo_e2',
-      'bp_hypo_f1',
-
-      'bp_dep_a1','bp_dep_a2','bp_dep_a3',
-      'bp_dep_a4','bp_dep_a5','bp_dep_a6',
-      'bp_dep_a7','bp_dep_a8','bp_dep_a9',
-
-      'bp_dep_b1',
-      'bp_dep_c1',
-
-      'bp_tel_1','bp_tel_2','bp_tel_3',
-      'bp_tel_4','bp_tel_5','bp_tel_6'
-    ]
-  }
-];
-
+document.addEventListener('DOMContentLoaded',()=>{render();render17Q();document.getElementById('dos').value=new Date().toISOString().slice(0,10);document.getElementById('bypassBtn').onclick=bypass;document.getElementById('generateBtn').onclick=generate;document.getElementById('shortBtn').onclick=generateShortBipolar;document.getElementById('screeningBtn').onclick=generateScreeningReport;document.getElementById('downloadBtn').onclick=downloadReport;document.getElementById('clearBtn').onclick=clearAll;let addDx=document.getElementById('addDxBtn');if(addDx)addDx.onclick=()=>addDiagnosisRow();});
 
 document.getElementById("saveBtn").addEventListener("click", () => {
-  const responses = {};
+    const responses = {};
   document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
       responses[input.name] = input.value;
   });
   document.querySelectorAll('input[type="checkbox"]').forEach(input => {
       responses[input.id] = input.checked;
-  });  
+  });
+
+const filteredData = Object.fromEntries(
+  Object.entries(responses).filter(([key, value]) => value !== false)
+);  
 
   const patientName = document.getElementById("patientName").value;
   const dob = document.getElementById("dob").value;
-  const mrn = document.getElementById("patientmrn").value;
+  const mrn = document.getElementById("mrn").value;
   const dos = document.getElementById("dos").value;
   const program = "Screener";
-  const formDataJson = JSON.stringify(responses);
+  const formDataJson = JSON.stringify(filteredData);
   const generatedNote = document.getElementById("noteOutput").textContent;
   const providerName = document.getElementById("provider").value;
   
-  window.parent.postMessage({
+    window.parent.postMessage({
     patientName,
     dob,
     mrn,
@@ -358,7 +405,7 @@ document.getElementById("saveBtn").addEventListener("click", () => {
     generatedNote,
     providerName
   }, "*");
-});
+})
 
 </script>
 </body>

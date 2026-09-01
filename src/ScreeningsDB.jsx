@@ -1,7 +1,9 @@
 import Database from "@tauri-apps/plugin-sql";
 
+const db = await Database.load("sqlite:Screenings.db");
+
 async function Screenings() {
-    const db = await Database.load("sqlite:Screenings.db");
+    
     await db.execute("PRAGMA foreign_keys = ON;");
 
     console.log("test");
@@ -38,7 +40,6 @@ async function Screenings() {
 }
 
 async function addPatient(patientName, dob, mrn) {
-    const db = await Database.load("sqlite:Screenings.db");
 
     mrn = mrn.trim();
 
@@ -69,7 +70,6 @@ async function addPatient(patientName, dob, mrn) {
 }
 
 async function findPatient(patientName, dob, mrn) {
-    const db = await Database.load("sqlite:Screenings.db");
 
     const exist = await db.select(
         `SELECT patient_id
@@ -97,7 +97,6 @@ async function screeningRecords(patientId, dos, program, formDataJson, generated
 }
 
 async function settings(providerName, clinicName) {
-    const db = await Database.load("sqlite:Screenings.db");
 
     await db.execute(`
         insert into settings
@@ -108,7 +107,6 @@ async function settings(providerName, clinicName) {
 }
 
 async function retrieveRecords() {
-    const db = await Database.load("sqlite:Screenings.db");
 
     let patientRecord = await db.select(`
         select
@@ -123,19 +121,38 @@ async function retrieveRecords() {
             form_data_json,
             generated_note,
             screening_records.created_at
-            
 
         from patients
         join screening_records
         on patients.patient_id = screening_records.patient_id
-        order by screening_records.date_of_service, record_id DESC
+        order by screening_records.created_at DESC
     `);
         
 
     return patientRecord;
 }
 
+async function deletePatient(patientId) {
+    await db.execute("delete from screening_records where patient_id = $1", [patientId]);
+    await db.execute("delete from patients where patient_id = $1", [patientId]);
+}
+
+async function deleteScreening(recordId) {
+    await db.execute(
+        "DELETE FROM screening_records WHERE record_id = $1",[recordId]);
+}
 
 
-export {Screenings, addPatient, findPatient, screeningRecords, settings, retrieveRecords};
+
+export {
+    Screenings, 
+    addPatient, 
+    findPatient, 
+    screeningRecords, 
+    settings, 
+    retrieveRecords, 
+    deletePatient,
+    deleteScreening
+
+};
 

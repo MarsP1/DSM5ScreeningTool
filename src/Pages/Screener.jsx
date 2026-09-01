@@ -37,7 +37,7 @@ function Screener() {
       <InterfacePanel/>
       <div className="pageContent">
         <iframe 
-          src="/Screening.html" 
+          src="/Screening2.html" 
           className="Screener"  
         />
       </div>
