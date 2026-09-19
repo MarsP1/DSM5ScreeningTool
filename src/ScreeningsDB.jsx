@@ -1,12 +1,23 @@
 import Database from "@tauri-apps/plugin-sql";
 
-const db = await Database.load("sqlite:Screenings.db");
+let dbPromise = null;
+
+async function getDB() {
+    if (!dbPromise) {
+        dbPromise = Database.load("sqlite:Screenings.db");
+    }
+
+    return await dbPromise;
+}
+
 
 async function Screenings() {
-    
+
+    const db = await getDB();
+
     await db.execute("PRAGMA foreign_keys = ON;");
 
-    console.log("test");
+    console.log("SQLite initialized");
 
     await db.execute(`
         create table if not exists patients (
@@ -27,7 +38,7 @@ async function Screenings() {
             form_data_json text,
             generated_note text,
             created_at text default current_timestamp
-        )  
+        )
     `);
 
     await db.execute(`
@@ -37,9 +48,14 @@ async function Screenings() {
             clinic_name text
         )
     `);
+
+    console.log("Database tables initialized");
 }
 
+
 async function addPatient(patientName, dob, mrn) {
+
+    const db = await getDB();
 
     mrn = mrn.trim();
 
@@ -54,7 +70,12 @@ async function addPatient(patientName, dob, mrn) {
     console.log("FOUND:", exist);
 
     if (exist.length > 0) {
-        console.log("USING EXISTING PATIENT:", exist[0].patient_id);
+
+        console.log(
+            "USING EXISTING PATIENT:",
+            exist[0].patient_id
+        );
+
         return exist[0].patient_id;
     }
 
@@ -69,7 +90,10 @@ async function addPatient(patientName, dob, mrn) {
     return info.lastInsertId;
 }
 
+
 async function findPatient(patientName, dob, mrn) {
+
+    const db = await getDB();
 
     const exist = await db.select(
         `SELECT patient_id
@@ -82,34 +106,77 @@ async function findPatient(patientName, dob, mrn) {
         return exist[0].patient_id;
     }
 
-    return await addPatient(patientName, dob, mrn);
-}
-
-async function screeningRecords(patientId, dos, program, formDataJson, generatedNote) {
-    const db = await Database.load("sqlite:Screenings.db");
-
-    await db.execute(`
-        insert into screening_records
-        (patient_id, date_of_service, program_name, form_data_json, generated_note)
-        values ($1, $2, $3, $4, $5)`,
-        [patientId, dos, program, formDataJson, generatedNote]
+    return await addPatient(
+        patientName,
+        dob,
+        mrn
     );
 }
+
+
+async function screeningRecords(
+    patientId,
+    dos,
+    program,
+    formDataJson,
+    generatedNote
+) {
+
+    const db = await getDB();
+
+    const result = await db.execute(`
+        INSERT INTO screening_records
+        (
+            patient_id,
+            date_of_service,
+            program_name,
+            form_data_json,
+            generated_note
+        )
+        VALUES ($1, $2, $3, $4, $5)
+    `,
+    [
+        patientId,
+        dos,
+        program,
+        formDataJson,
+        generatedNote
+    ]);
+
+    console.log(
+        "Screening record saved:",
+        result.lastInsertId
+    );
+
+    return result.lastInsertId;
+}
+
 
 async function settings(providerName, clinicName) {
 
+    const db = await getDB();
+
     await db.execute(`
-        insert into settings
-        (provider_name, clinic_name)
-        values ($1, $2)`,
-        [providerName, clinicName]
-    );
+        INSERT INTO settings
+        (
+            provider_name,
+            clinic_name
+        )
+        VALUES ($1, $2)
+    `,
+    [
+        providerName,
+        clinicName
+    ]);
 }
+
 
 async function retrieveRecords() {
 
-    let patientRecord = await db.select(`
-        select
+    const db = await getDB();
+
+    const patientRecord = await db.select(`
+        SELECT
             patients.patient_id,
             medical_record_num,
             patient_name,
@@ -122,37 +189,344 @@ async function retrieveRecords() {
             generated_note,
             screening_records.created_at
 
-        from patients
-        join screening_records
-        on patients.patient_id = screening_records.patient_id
-        order by screening_records.created_at DESC
+        FROM patients
+
+        JOIN screening_records
+        ON patients.patient_id = screening_records.patient_id
+
+        ORDER BY screening_records.created_at DESC
     `);
-        
 
     return patientRecord;
 }
 
+
 async function deletePatient(patientId) {
-    await db.execute("delete from screening_records where patient_id = $1", [patientId]);
-    await db.execute("delete from patients where patient_id = $1", [patientId]);
+
+    const db = await getDB();
+
+    await db.execute(
+        "DELETE FROM screening_records WHERE patient_id = $1",
+        [patientId]
+    );
+
+    await db.execute(
+        "DELETE FROM patients WHERE patient_id = $1",
+        [patientId]
+    );
 }
+
 
 async function deleteScreening(recordId) {
+
+    const db = await getDB();
+
     await db.execute(
-        "DELETE FROM screening_records WHERE record_id = $1",[recordId]);
+        "DELETE FROM screening_records WHERE record_id = $1",
+        [recordId]
+    );
 }
 
+async function getFormattedRecords() {
 
+    const records = await retrieveRecords();
+
+    return records.map(record => ({
+        id: record.record_id,
+        patientName: record.patient_name,
+        dob: record.date_of_birth,
+        mrn: record.medical_record_num,
+        program: record.program_name,
+        dos: record.date_of_service,
+        formDataJson: record.form_data_json,
+        generatedNote: record.generated_note,
+        savedAt: record.created_at
+    }));
+}
+
+function setupArnOfficeBridge() {
+
+    async function handleMessage(event) {
+
+        const message = event.data;
+
+        if (!message || typeof message !== "object") {
+            return;
+        }
+
+        if (message.type === "ARNP_GET_RECORDS") {
+
+            try {
+
+                console.log(
+                    "ARNP iframe requested records"
+                );
+
+                const records = await retrieveRecords();
+
+                console.log(
+                    "Records retrieved from SQLite:",
+                    records
+                );
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_RECORDS",
+                        requestId: message.requestId,
+                        records: records.map(record => ({
+                            id: record.record_id,
+                            patientName: record.patient_name,
+                            dob: record.date_of_birth,
+                            mrn: record.medical_record_num,
+                            program: record.program_name,
+                            dos: record.date_of_service,
+                            formDataJson: record.form_data_json,
+                            generatedNote: record.generated_note,
+                            savedAt: record.created_at
+                        }))
+                    },
+                    "*"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to retrieve SQLite records:",
+                    error
+                );
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_RECORDS",
+                        requestId: message.requestId,
+                        records: [],
+                        error: error.message
+                    },
+                    "*"
+                );
+            }
+
+            return;
+        }
+
+        if (message.type === "ARNP_DELETE_RECORD") {
+
+            try {
+
+                console.log(
+                    "Deleting record:",
+                    message.recordId
+                );
+
+                await deleteScreening(
+                    message.recordId
+                );
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_RECORDS",
+                        requestId: message.requestId,
+                        records: await getFormattedRecords()
+                    },
+                    "*"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to delete record:",
+                    error
+                );
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_RECORDS",
+                        requestId: message.requestId,
+                        records: [],
+                        error: error.message
+                    },
+                    "*"
+                );
+            }
+
+            return;
+        }
+
+
+        if (message.type === "ARNP_DELETE_RECORDS") {
+
+            try {
+
+                console.log(
+                    "Deleting record type:",
+                    message.recordType
+                );
+
+                const records = await retrieveRecords();
+
+                for (const record of records) {
+
+                    const program = String(
+                        record.program_name || ""
+                    ).toLowerCase();
+
+                    let matches = false;
+
+                    if (message.recordType === "prescreen") {
+
+                        matches =
+                            program.includes("pre-screener") ||
+                            program.includes("prescreener");
+
+                    } else if (message.recordType === "iq") {
+
+                        matches =
+                            program.includes("cog") ||
+                            program.includes("iq");
+
+                    } else if (message.recordType === "screener") {
+
+                        const isPrescreen =
+                            program.includes("pre-screener") ||
+                            program.includes("prescreener");
+
+                        const isIQ =
+                            program.includes("cog") ||
+                            program.includes("iq");
+
+                        matches =
+                            !isPrescreen &&
+                            !isIQ;
+                    }
+
+                    if (matches) {
+
+                        await deleteScreening(
+                            record.record_id
+                        );
+                    }
+                }
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_RECORDS",
+                        requestId: message.requestId,
+                        records: await getFormattedRecords()
+                    },
+                    "*"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to delete record type:",
+                    error
+                );
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_RECORDS",
+                        requestId: message.requestId,
+                        records: [],
+                        error: error.message
+                    },
+                    "*"
+                );
+            }
+
+            return;
+        }
+
+
+        if (message.type === "ARNP_SAVE_RECORD") {
+
+            try {
+
+                console.log(
+                    "Received ARNP save request:",
+                    message
+                );
+
+                const data = message.payload || message;
+
+                const patientId = await findPatient(
+                    data.patientName || "",
+                    data.dob || "",
+                    data.mrn || ""
+                );
+
+                const recordId = await screeningRecords(
+                    patientId,
+                    data.dos || "",
+                    data.program || "Screener Report",
+                    data.formDataJson || "",
+                    data.generatedNote || ""
+                );
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_SAVE_RESULT",
+                        success: true,
+                        recordId: recordId
+                    },
+                    "*"
+                );
+
+                console.log(
+                    "ARNP record saved to SQLite"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to save ARNP record:",
+                    error
+                );
+
+                event.source.postMessage(
+                    {
+                        type: "ARNP_DB_ERROR",
+                        error: error.message
+                    },
+                    "*"
+                );
+            }
+
+            return;
+        }
+    }
+
+
+    window.addEventListener(
+        "message",
+        handleMessage
+    );
+
+
+    console.log(
+        "ARNP Office bridge initialized"
+    );
+
+
+    return function cleanup() {
+
+        window.removeEventListener(
+            "message",
+            handleMessage
+        );
+
+    };
+}
 
 export {
-    Screenings, 
-    addPatient, 
-    findPatient, 
-    screeningRecords, 
-    settings, 
-    retrieveRecords, 
+    Screenings,
+    addPatient,
+    findPatient,
+    screeningRecords,
+    settings,
+    retrieveRecords,
     deletePatient,
-    deleteScreening
-
+    deleteScreening,
+    setupArnOfficeBridge
 };
 
